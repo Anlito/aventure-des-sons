@@ -203,14 +203,24 @@ function render(){$('answerOverlay').classList.add('hidden');if(state.index>=20)
 function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?(q.w?vWord(q).part:q.rule!==undefined?ruleWords[q.rule][2]:cousinWords[q.cousin][2]):q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');updateAnswerOverlay();$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
 function answer(opt,correct,btn){if(answered||left()<=0)return;answered=true;let q=qAt(),ok=opt===correct;for(let b of $('choices').children){b.disabled=true;if((q.mode==='syllable'?b.dataset.answer:b.textContent)===correct)b.classList.add('correct');else if(b===btn)b.classList.add('wrong')}feedback(q,ok)}
 function speak(text,rate=.78){if(!('speechSynthesis'in window)){alert('La lecture audio n’est pas disponible sur cet appareil.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';u.rate=rate;let v=speechSynthesis.getVoices().find(x=>x.lang?.toLowerCase().startsWith('fr'));if(v)u.voice=v;speechSynthesis.speak(u)}
+const recordedSoundIds=new Set(['ou','on','an','en','in','oi','oin','ouin','oui','ai','ei','eau','ch','gn']);
+let recordedSoundAudio=null;
+function playRecordedSound(id,fallback){
+ if(!recordedSoundIds.has(id)){speak(fallback);return}
+ if('speechSynthesis'in window)speechSynthesis.cancel();
+ if(recordedSoundAudio){recordedSoundAudio.pause();recordedSoundAudio.currentTime=0}
+ const audio=new Audio('assets/audio/'+id+'.wav');recordedSoundAudio=audio;
+ audio.onerror=()=>{if(recordedSoundAudio===audio)speak(fallback)};
+ audio.play().catch(()=>speak(fallback));
+}
 $('readInstruction').onclick=()=>{const consigne=$('instruction').textContent.trim();if(consigne)speak(consigne)};
 $('audio').onclick=()=>{let q=qAt();if(q.mode==='gap')hadHint=true;
- if(q.mode==='listenPart'||q.mode==='soundMatch')speak(soundFamilies[q.family][1]);
+ if(q.mode==='listenPart'||q.mode==='soundMatch')playRecordedSound(soundFamilies[q.family][0],soundFamilies[q.family][1]);
  else if(q.mode==='cousinFill')speak(q.w?vWord(q).word:cousinWords[q.cousin][0]);
  else if(q.mode==='hunt')speak(vWord(q).part);
  else if(q.mode==='mirror')speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter]);
  else if(q.mode==='order'){let f=blendItems[q.blend];speak(f[2])}
- else if(q.mode==='match'){speak(soundFamilies[q.family][1])}
+ else if(q.mode==='match'){playRecordedSound(soundFamilies[q.family][0],soundFamilies[q.family][1])}
  else if(q.mode==='blend'){let f=blendItems[q.blend];speak(f[2],.62)}
  else speak(vWord(q).word);
 };
