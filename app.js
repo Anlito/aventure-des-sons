@@ -222,6 +222,23 @@ function skipOral(){if(answered||qAt()?.mode!=='oral')return;answered=true;const
 function oralAnswer(ok){if(answered||left()<=0)return;answered=true;$('adultButtons').classList.add('hidden');feedback(qAt(),ok,true)}
 $('oralYes').onclick=()=>oralAnswer(true);$('skipOral').onclick=skipOral;$('oralNo').onclick=()=>oralAnswer(false);
 $('next').onclick=()=>{if(!answered)return;if(state.index>=20)finish();else render()};
+/* Une seule fenêtre de résultat pour parcours, bonus et exemples parents. */
+function updateAnswerOverlay(){
+ const message=$('feedback').textContent.trim();
+ const visible=Boolean(message)&&!$('next').classList.contains('hidden');
+ $('answerOverlay').classList.toggle('hidden',!visible);
+ if(!visible)return;
+ const success=/^(Bonne réponse|Bravo|Bien joué|Excellent|Réussi)/i.test(message);
+ $('answerOverlay').classList.toggle('answer-success',success);
+ $('answerOverlay').classList.toggle('answer-retry',!success);
+ $('answerTitle').textContent=success?'Bravo !':'Pas encore !';
+ $('answerSymbol').textContent=success?'⭐':'💛';
+}
+const answerObserver=new MutationObserver(updateAnswerOverlay);
+answerObserver.observe($('feedback'),{childList:true,characterData:true,subtree:true});
+answerObserver.observe($('next'),{attributes:true,attributeFilter:['class']});
+updateAnswerOverlay();
+
 function finish(){if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
 function timeUp(){show('end');$('endTitle').textContent='🌙 À demain !';$('endText').textContent='Tes 10 minutes sont écoulées. Les questions et les points sont conservés, mais les étoiles sont distribuées à la fin des 20 questions. Le parcours reprend demain uniquement si tu n’as pas terminé celui d’aujourd’hui.'}
 const costs=[2,5,9,15,25];
