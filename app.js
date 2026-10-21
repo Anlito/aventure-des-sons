@@ -110,7 +110,7 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  else if(q.mode==='syllable'){$('instruction').textContent='Lis les syllabes et choisis la bonne image.';$('word').textContent=w.split;$('question').textContent='Quelle image correspond au mot ?';correct=w.word;let distract=shuffle(vocab.filter(x=>x.word!==w.word&&x.emoji!==w.emoji&&x.emoji!==''));let picked=[],seen=new Set([w.emoji]);for(let x of distract){if(!seen.has(x.emoji)){picked.push(x);seen.add(x.emoji)}if(picked.length===3)break}options=shuffle([w,...picked].map(x=>x.word));const images=new Map([w,...picked].map(x=>[x.word,x.emoji]));$('choices').dataset.images='1';$('choices')._images=images;}
  else if(q.mode==='sentence'){let t=stories[q.story];$('instruction').textContent='Lis la phrase puis réponds.';$('word').style.fontSize='clamp(1.5rem,5vw,2.4rem)';$('word').textContent=t[0];$('question').textContent=t[1];correct=t[2];options=shuffle(t.slice(2));}
  else if(q.mode==='listenWord'){
- $('instruction').textContent='Écoute le mot, puis retrouve son écriture. Ne te fie pas seulement à l’image.';
+ $('instruction').textContent='Écoute le mot, puis choisis son écriture parmi les propositions.';
  $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Appuie sur Écouter. Quel mot entends-tu ?';
  correct=w.word;let other=shuffle([...new Set(vocab.filter(x=>x.word!==correct).map(x=>x.word))]).sort((a,b)=>{const distance=x=>Math.abs(x.length-correct.length)*2+(x.slice(0,2)===correct.slice(0,2)?0:2)+(x.slice(-2)===correct.slice(-2)?0:1);return distance(a)-distance(b)}).slice(0,3);options=shuffle([correct,...other]);
  }
