@@ -314,7 +314,7 @@ $('quickExitTest').onclick=()=>{if(!testMode)return;localStorage.setItem(TEST_FL
 $('testConfirm').onclick=()=>{if(Number($('testMathAnswer').value)!==testExpected||!$('testMathAnswer').value){$('testError').textContent='Calcul incorrect. Réessaie.';return}localStorage.setItem(TEST_FLAG,testMode?'0':'1');location.reload()};
 $('settings').onclick=()=>{if(!parentUnlocked)return;updateTestStatus();$('settingsPanel').classList.toggle('hidden');let root=$('rewardFields');root.replaceChildren();state.rewards.forEach((reward,i)=>{let label=document.createElement('label');label.textContent='Coffre '+(i+1);label.style.display='block';let input=document.createElement('input');input.id='reward'+i;input.style.width='100%';input.style.fontSize='1rem';input.value=reward;root.append(label,input)})};
 $('saveRewards').onclick=()=>{if(!parentUnlocked)return;state.rewards=costs.map((_,i)=>$('reward'+i).value.trim()||blank().rewards[i]);save();renderChests();$('settingsPanel').classList.add('hidden')};
-$('start').onclick=play;$('exit').onclick=home;$('backHome').onclick=home;$('dragon').src=dragonSprite;updateTestStatus();
+$('start').onclick=play;$('headerHome').onclick=home;$('exit').onclick=home;$('backHome').onclick=home;$('dragon').src=dragonSprite;updateTestStatus();
 let last=Date.now();function tick(){let now=Date.now(),dt=Math.min(3,Math.max(0,(now-last)/1000));last=now;if(!testMode&&document.visibilityState==='visible'&&!state.completed&&left()>0){state.seconds=Math.min(LIMIT,state.seconds+dt);save();if(left()<=0&&!$('play').classList.contains('hidden'))timeUp()}sync()}
 setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{tick();last=Date.now()});window.addEventListener('pagehide',()=>{tick();save()});home();
 
