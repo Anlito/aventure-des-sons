@@ -9,7 +9,7 @@ function bonusButton(){
  if(!button)return;
  const blocked=!testMode&&(bonusPlayed()||left()<=0);
  button.disabled=blocked;
- button.textContent=testMode?'🎲 Nouvelle question aléatoire':bonusPlayed()?'✓ Bonus du jour terminé':'🎲 Jouer la question bonus';
+ const label=button.querySelector('.game-action-label');if(label)label.textContent=testMode?'Question bonus':bonusPlayed()?'Bonus terminé':'Question bonus';else button.textContent=testMode?'🎲 Question bonus':bonusPlayed()?'✓ Bonus terminé':'🎲 Question bonus';
  status.textContent=testMode?'Mode test : questions bonus illimitées, sans effet sur les résultats.':bonusPlayed()?'Reviens demain pour une autre question surprise.':left()<=0?'Le temps de jeu du jour est écoulé.':'Une question bonus par jour, sans points ni étoiles.';
 }
 save=function(){if(!bonusActive)bonusOriginal.save()};
