@@ -278,7 +278,7 @@ function drawJourney(root,progress,compact=false){
   positions.forEach((p,i)=>{
    const step=document.createElement('span');
    step.className='journey-step map-step '+(i<progress?'done':i===progress?'current':'upcoming');
-   step.style.left=p.x+'%';step.style.top=p.y+'%';
+   step.style.cssText='left:'+p.x+'%;top:'+p.y+'%;width:36px;height:36px;max-width:36px;max-height:36px;min-width:36px;min-height:36px;aspect-ratio:auto;position:absolute;display:flex;flex:none;padding:0;box-sizing:border-box;';
    step.textContent=i===19?'🎁':i<progress?'✓':i===progress?'🐉':String(i+1);
    step.title='Étape '+(i+1)+(i<progress?' terminée':i===progress?' actuelle':' à venir');
    root.append(step);
