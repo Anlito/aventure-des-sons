@@ -145,3 +145,16 @@ header{position:relative;padding-right:76px}
 #play .bar{margin:6px 0 15px;height:23px!important;border:3px solid #654020!important}
 #play .read-instruction{margin-top:8px}
 @media(max-width:430px){header{padding-right:70px}.header-home{right:9px;top:13px;width:49px;height:49px;min-height:49px;font-size:1.75rem}header .stats{gap:4px}header .stats span{font-size:.67rem}}
+
+/* Résultat plein écran : visible immédiatement sans défilement */
+.answer-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:#122447b8;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.answer-overlay.hidden{display:none!important}
+.answer-dialog{width:min(100%,430px);max-height:calc(100dvh - 36px);overflow-y:auto;padding:23px 19px 26px;text-align:center;background:linear-gradient(180deg,#fff8df,#ffebb6);border:5px solid #e7b65b;border-radius:30px;box-shadow:0 9px 0 #b97c36,0 25px 60px #071b4280;animation:answerAppear .22s ease-out}
+.answer-symbol{font-size:clamp(4rem,17vw,6rem);line-height:1.15;filter:drop-shadow(0 5px 2px #b78b4080)}
+.answer-dialog h2{font-family:'Baloo 2',system-ui,sans-serif;font-size:clamp(2rem,9vw,2.8rem);color:#b35e1d;margin:8px 0 3px}
+.answer-overlay.answer-success .answer-dialog{border-color:#a5d759;background:linear-gradient(#f7ffda,#d8f5b1)}
+.answer-overlay.answer-success .answer-dialog h2{color:#3a8a24}
+#play .answer-dialog .feedback{min-height:0;margin:8px 0 20px;padding:0;border:0;background:transparent;box-shadow:none;color:#664623;font-family:'Baloo 2',system-ui,sans-serif;font-size:clamp(1.05rem,4.5vw,1.3rem);font-weight:700;line-height:1.3;animation:none}
+#play .answer-dialog #next{display:block;width:100%!important;margin:12px 0 0;min-height:68px;border-radius:20px;font-size:1.3rem!important;background:linear-gradient(#91e943,#39b72b);border:3px solid #d8ffab;box-shadow:0 6px 0 #278122;text-shadow:0 2px 0 #26721c;color:#fff}
+@keyframes answerAppear{from{transform:scale(.86) translateY(18px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.answer-dialog{animation:none}}
