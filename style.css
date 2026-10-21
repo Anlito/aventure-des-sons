@@ -4,3 +4,8 @@
 #parentPage{max-width:850px;margin:12px auto;padding:0 12px}#parentPin{width:150px;letter-spacing:.3em}
 
 .parent-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}.parent-nav button{min-height:52px}.parent-panel{margin-top:12px}.parent-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.parent-kpi{background:#edf3ff;border-radius:14px;padding:12px}.parent-kpi strong{display:block;font-size:1.4rem}.catalog-item{border:1px solid #dce4f2;border-radius:14px;padding:12px;margin:10px 0}.catalog-item summary{cursor:pointer;font-weight:800;padding:6px 0}.catalog-example{background:#f3f6fe;border-radius:12px;padding:12px;margin:10px 0;overflow-wrap:anywhere}.catalog-options{display:flex;gap:7px;flex-wrap:wrap}.catalog-options span{border:1px solid #cad8f1;border-radius:10px;padding:8px;background:white}.catalog-note{border-left:3px solid #7193d5;padding-left:10px;margin:9px 0}.parent-plan-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e7edf7}.parent-plan-line button{flex:none}.parent-plan-line span{flex:1;min-width:0}@media(min-width:680px){.parent-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.parent-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Images de réponse plus grandes pour la lecture des syllabes */
+.choices.syllable-image-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.choices button.syllable-image-choice{font-size:clamp(4.5rem,14vw,7rem);line-height:1.2;min-height:160px;padding:16px 8px;display:flex;align-items:center;justify-content:center}
+@media(min-width:650px){.choices button.syllable-image-choice{min-height:205px;font-size:7.5rem}}
