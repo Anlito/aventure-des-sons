@@ -53,13 +53,14 @@ function sameSound(a,b){return a===b||equivalentSounds.some(g=>g.includes(a)&&g.
 function soundChoices(answer,list){const out=[answer];for(const x of shuffle(list)){if(out.length===4)break;if(!out.some(y=>sameSound(x,y)))out.push(x)}return shuffle(out)}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function dayNumber(){return Math.floor(new Date().setHours(0,0,0,0)/86400000)}
-function blank(){return{date:DAY(),seconds:0,points:0,index:0,plan:[],completed:false,stars:0,earned:0,spent:0,mastery:{},lastSeen:{},chests:[],history:[],answers:[],rewards:['Choisir une friandise','15 min de jeu bonus hors de cette application','Choisir un livre','Une activité ou sortie en famille']}}
+function blank(){return{date:DAY(),seconds:0,points:0,index:0,plan:[],completed:false,stars:0,earned:0,spent:0,mastery:{},lastSeen:{},chests:[],history:[],answers:[],rewards:['Choisir une friandise','15 min de jeu bonus hors de cette application','Choisir un livre','Une activité ou sortie en famille','Une grande surprise à choisir en famille']}}
 let state;try{state=Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{state=blank()}
 for(let k of ['mastery','lastSeen'])if(!state[k]||typeof state[k]!=='object')state[k]={};
 if(!Array.isArray(state.chests))state.chests=[];
 if(!Array.isArray(state.history))state.history=[];
 if(!Array.isArray(state.answers))state.answers=[];
 if(!Array.isArray(state.rewards))state.rewards=blank().rewards;
+while(state.rewards.length<5)state.rewards.push(blank().rewards[state.rewards.length]);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 function balance(){return Math.max(0,(state.earned||0)-(state.spent||0))}
 function left(){return testMode?999999:Math.max(0,LIMIT-state.seconds)}
@@ -218,26 +219,42 @@ $('oralYes').onclick=()=>oralAnswer(true);$('skipOral').onclick=skipOral;$('oral
 $('next').onclick=()=>{if(!answered)return;if(state.index>=20)finish();else render()};
 function finish(){if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
 function timeUp(){show('end');$('endTitle').textContent='🌙 À demain !';$('endText').textContent='Tes 10 minutes sont écoulées. Les questions et les points sont conservés, mais les étoiles sont distribuées à la fin des 20 questions. Le parcours reprend demain uniquement si tu n’as pas terminé celui d’aujourd’hui.'}
-const costs=[2,5,9,15];function renderChests(){
- let root=$('chestList');root.replaceChildren();
+const costs=[2,5,9,15,25];
+function treasureDialog(title,message,buttons,icon='🎁'){
+ $('treasureTitle').textContent=title;$('treasureText').textContent=message;$('treasureIcon').textContent=icon;
+ const actions=$('treasureActions');actions.replaceChildren();
+ for(const item of buttons){const b=document.createElement('button');b.className=item.primary?'gold':'secondary';b.textContent=item.label;b.onclick=()=>{closeTreasure();if(item.action)item.action()};actions.append(b)}
+ $('treasureOverlay').classList.remove('hidden');
+}
+function closeTreasure(){$('treasureOverlay').classList.add('hidden')}
+$('treasureOverlay').addEventListener('click',e=>{if(e.target===$('treasureOverlay'))closeTreasure()});
+function renderChests(){
+ const root=$('chestList');root.replaceChildren();$('shopBalance').textContent=balance();
  costs.forEach((cost,i)=>{
-  const d=document.createElement('div');d.className='chest chest-tier-'+(i+1);
-  const img=document.createElement('img');img.src=chestSprites[i];img.alt='Coffre de niveau '+(i+1);
-  const content=document.createElement('div');
-  const title=document.createElement('strong');title.textContent=['Petit coffre','Coffre moyen','Grand coffre','Coffre géant'][i]+' · '+cost+' ⭐';
-  const hint=document.createElement('p');hint.className='mini muted';hint.textContent=['Petite surprise','Belle surprise','Grande surprise','Surprise extraordinaire'][i];
-  const button=document.createElement('button');button.className='gold';
-  button.textContent=testMode?'Tester l’ouverture': 'Ouvrir (-'+cost+' ⭐)';
-  button.disabled=!testMode&&balance()<cost;
-  button.onclick=()=>{
-   if(testMode){alert('ESSAI DU COFFRE — '+title.textContent+'\nSurprise : '+state.rewards[i]+'\nAucune étoile dépensée.');return}
-   if(balance()<cost)return;
-   if(!confirm('Dépenser '+cost+' étoiles pour ouvrir ce coffre surprise ?'))return;
-   state.spent=(state.spent||0)+cost;state.chests.push({date:DAY(),tier:i});save();
-   alert('Coffre ouvert !\nTa surprise : '+state.rewards[i]+'.\nMontre-la à un parent.');
-   renderChests();sync();
+  const canBuy=testMode||balance()>=cost;
+  const card=document.createElement('button');card.type='button';card.className='treasure-chest tier-'+(i+1)+(canBuy?' available':' locked');
+  card.setAttribute('aria-label','Coffre '+(i+1)+' : '+cost+' étoiles'+(canBuy?' — ouvrir':' — pas assez d’étoiles'));
+  const price=document.createElement('span');price.className='treasure-price';price.textContent=cost+' ⭐';
+  const art=document.createElement('span');art.className='treasure-art';
+  const img=document.createElement('img');img.src=chestSprites[i];img.alt='';img.loading='lazy';art.append(img);
+  const label=document.createElement('span');label.className='treasure-name';label.textContent=['Petit coffre','Coffre bronze','Coffre argent','Coffre doré','Coffre royal'][i];
+  const status=document.createElement('span');status.className='treasure-status';status.textContent=testMode?'🪄 Tester':canBuy?'✨ Ouvrir':'🔒 À gagner';
+  card.append(price,art,label,status);
+  card.onclick=()=>{
+   if(!canBuy){treasureDialog('Encore quelques étoiles !','Il te manque '+(cost-balance())+' étoile'+(cost-balance()>1?'s':'')+' pour ce coffre.',[{label:'Continuer l’aventure',primary:true}], '🔒');return}
+   treasureDialog(testMode?'Tester ce coffre ?':'Ouvrir ce coffre ?',testMode?'Mode test : tu verras la surprise sans dépenser d’étoiles.':'Veux-tu dépenser '+cost+' étoiles pour découvrir la surprise ?',[
+    {label:'Non, je le garde fermé'},
+    {label:testMode?'Oui, tester !':'Oui, ouvrir !',primary:true,action:()=>{
+      if(!testMode){
+       if(balance()<cost){renderChests();return}
+       state.spent=(state.spent||0)+cost;state.chests.push({date:DAY(),tier:i});save();
+      }
+      treasureDialog('Surprise !',state.rewards[i]||blank().rewards[i],[{label:'Super !',primary:true}], '🎉');
+      renderChests();sync();
+    }}
+   ],'🎁');
   };
-  content.append(title,hint,button);d.append(img,content);root.append(d);
+  root.append(card);
  });
 }
 function drawJourney(root,progress,compact=false){
