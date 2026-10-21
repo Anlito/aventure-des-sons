@@ -48,6 +48,9 @@ const cousinWords=[
 const ruleWords=[['citron','_itron','c',['c','s','ç','k']],['cadeau','_adeau','c',['c','s','ç','k']],['garçon','gar_on','ç',['c','ç','s','ss']],['reçu','re_u','ç',['c','ç','s','ss']],['poisson','poi__on','ss',['s','ss','c','ç']],['coussin','cou__in','ss',['s','ss','c','ç']],['maison','mai_on','s',['s','ss','z','c']],['rose','ro_e','s',['s','ss','z','c']]];
 const blendItems=[['cha','peau','chapeau'],['ba','teau','bateau'],['la','pin','lapin'],['mou','lin','moulin'],['poi','sson','poisson'],['mai','son','maison'],['jar','din','jardin'],['che','min','chemin'],['chan','son','chanson'],['bou','gie','bougie'],['co','chon','cochon'],['ma','man','maman']];
 const choices=['ou','on','an','en','in','un','ai','ei','oi','oin','ouin','oui','eau','au','ch','gn','é','è','am','em','um'];
+const equivalentSounds=[['ai','ei','é','è'],['au','eau'],['an','en','am','em'],['un','um']];
+function sameSound(a,b){return a===b||equivalentSounds.some(g=>g.includes(a)&&g.includes(b))}
+function soundChoices(answer,list){const out=[answer];for(const x of shuffle(list)){if(out.length===4)break;if(!out.some(y=>sameSound(x,y)))out.push(x)}return shuffle(out)}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function dayNumber(){return Math.floor(new Date().setHours(0,0,0,0)/86400000)}
 function blank(){return{date:DAY(),seconds:0,points:0,index:0,plan:[],completed:false,stars:0,earned:0,spent:0,mastery:{},lastSeen:{},chests:[],history:[],answers:[],rewards:['Choisir une friandise','15 min de jeu bonus hors de cette application','Choisir un livre','Une activité ou sortie en famille']}}
@@ -62,7 +65,7 @@ function balance(){return Math.max(0,(state.earned||0)-(state.spent||0))}
 function left(){return testMode?999999:Math.max(0,LIMIT-state.seconds)}
 function pool(){let all=[];
  for(let w of vocab){
- let others=shuffle(choices.filter(c=>c!==w.part && !(w.part==='an'&&c==='en')&&!(w.part==='en'&&c==='an'))).slice(0,3);
+ let others=soundChoices(w.part,choices).filter(c=>c!==w.part);
  all.push({id:'g'+w.id,mode:'gap',w:w.id,options:shuffle([w.part,...others])});
  all.push({id:'o'+w.id,mode:'oral',w:w.id});
  all.push({id:'h'+w.id,mode:'hunt',w:w.id});
@@ -178,7 +181,7 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  $('instruction').textContent='Écoute le mot et complète les lettres manquantes.';
  $('word').textContent=target?target.mask:rule?rule[1]:cw[1];$('question').textContent='Quelles lettres manquent dans le mot entendu ?';
  $('audio').classList.remove('hidden');$('hint').classList.remove('hidden');
- correct=target?target.part:rule?rule[2]:cw[2];options=target?shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x.length>=2)).slice(0,3)]):rule?shuffle(rule[3]):shuffle(['b','d','p','q']);
+ correct=target?target.part:rule?rule[2]:cw[2];options=target?soundChoices(correct,choices.filter(x=>x.length>=2)):rule?shuffle(rule[3]):shuffle(['b','d','p','q']);
  }
  else if(q.mode==='mirror'){
  $('instruction').textContent='Écoute le nom de la lettre, puis retrouve la bonne lettre parmi les quatre propositions.';
