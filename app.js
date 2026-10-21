@@ -178,7 +178,7 @@ function render(){$('answerOverlay').classList.add('hidden');if(state.index>=20)
  board.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px';
  let selected=null,done=0,mistakes=0;
  const audioOrder=shuffle(families);
- audioOrder.forEach((fam,i)=>{let b=document.createElement('button');b.className='secondary';b.textContent='🔊 Mot '+(i+1);b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||b.disabled)return;selected=b;[...leftCol.children].forEach(x=>x.style.outline='');b.style.outline='3px solid #f2bd40';speak(fam[1])};leftCol.append(b)});
+ audioOrder.forEach((fam,i)=>{let b=document.createElement('button');b.className='secondary';b.textContent='🔊 Mot '+(i+1);b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||b.disabled)return;selected=b;[...leftCol.children].forEach(x=>x.style.outline='');b.style.outline='3px solid #f2bd40';playRecordedSound(fam[0],fam[1])};leftCol.append(b)});
  shuffle(families).forEach(fam=>{let b=document.createElement('button');b.className='secondary';b.textContent=fam[0];b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||!selected||b.disabled)return;if(selected.dataset.key===b.dataset.key){selected.disabled=true;b.disabled=true;selected.style.background='#b7edcd';b.style.background='#b7edcd';done++;if(done===3){answered=true;feedback(q,mistakes===0)}}else{mistakes++;$('feedback').textContent='Essaie une autre association.'}selected.style.outline='';selected=null};rightCol.append(b)});
  board.append(leftCol,rightCol);$('interactive').append(board);
  }
@@ -217,7 +217,7 @@ $('readInstruction').onclick=()=>{const consigne=$('instruction').textContent.tr
 $('audio').onclick=()=>{let q=qAt();if(q.mode==='gap')hadHint=true;
  if(q.mode==='listenPart'||q.mode==='soundMatch')playRecordedSound(soundFamilies[q.family][0],soundFamilies[q.family][1]);
  else if(q.mode==='cousinFill')speak(q.w?vWord(q).word:cousinWords[q.cousin][0]);
- else if(q.mode==='hunt')speak(vWord(q).part);
+ else if(q.mode==='hunt'){let part=vWord(q).part;recordedSoundIds.has(part)?playRecordedSound(part,vWord(q).word):speak(part)}
  else if(q.mode==='mirror')speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter]);
  else if(q.mode==='order'){let f=blendItems[q.blend];speak(f[2])}
  else if(q.mode==='match'){playRecordedSound(soundFamilies[q.family][0],soundFamilies[q.family][1])}
