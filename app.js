@@ -399,6 +399,14 @@ $('resetNextPlan').onclick=()=>{if(!parentUnlocked)return;localStorage.removeIte
 
 function updateParentPinDisplay(){let pin=$('parentPin').value;$('parentPinDots').textContent=Array.from({length:4},(_,i)=>i<pin.length?'●':'○').join(' ');$('parentUnlockButton').disabled=pin.length!==4}
 document.querySelectorAll('[data-pin-key]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.pinKey,input=$('parentPin');if(key==='clear')input.value='';else if(key==='back')input.value=input.value.slice(0,-1);else if(input.value.length<4)input.value+=key;$('parentPinError').textContent='';updateParentPinDisplay()}));
+$('resetGame').onclick=()=>{if(!parentUnlocked)return;$('resetGameConfirm').classList.remove('hidden')};
+$('resetGameCancel').onclick=()=>{$('resetGameConfirm').classList.add('hidden')};
+$('resetGameApply').onclick=()=>{if(!parentUnlocked)return;
+ const rewards=Array.isArray(state.rewards)?state.rewards:blank().rewards;
+ const clean=blank();clean.rewards=rewards;
+ try{localStorage.setItem('sons_v8_20_daily',JSON.stringify(clean));localStorage.removeItem('sons_parent_test_data');localStorage.removeItem('sons_parent_next_plan_v1');localStorage.removeItem('sons_bonus_daily_v1');localStorage.setItem(TEST_FLAG,'0')}catch(e){alert('Réinitialisation impossible : '+e.message);return}
+ location.reload();
+};
 let parentUnlocked=false;
 $('openParent').onclick=()=>{parentUnlocked=false;$('parentPin').value='';updateParentPinDisplay();$('parentPinError').textContent='';$('parentLogin').classList.remove('hidden');$('parentDashboard').classList.add('hidden');$('parentPage').classList.remove('hidden');document.querySelector('main').classList.add('hidden');window.scrollTo(0,0)};
 $('closeParent').onclick=()=>{$('parentPage').classList.add('hidden');document.querySelector('main').classList.remove('hidden');parentUnlocked=false;home()};
