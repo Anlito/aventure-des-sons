@@ -98,7 +98,7 @@ function qAt(){return state.plan[state.index]}
 function vWord(q){return vocab[Number(q.w.slice(1))]}
 function sync(){let n=Math.ceil(left());$('clock').textContent=testMode?'∞ TEST':String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('dayLabel').textContent='Défi '+Math.min(20,state.index+1)+'/20';$('scoreLabel').textContent=state.points+' pts';$('starsLabel').textContent=testMode?'TEST · sans étoiles':balance()+' ⭐'}
 function show(id){for(let p of ['home','play','end'])$(p).classList.toggle('hidden',p!==id);sync();window.scrollTo(0,0)}
-function home(){show('home');$('intro').textContent=testMode?'Mode test parent : 20 questions par série, autant de séries que souhaité. Aucun impact sur les récompenses de l’enfant.':state.completed?'Parcours terminé ! Reviens demain pour 20 nouvelles questions adaptées.':'Aujourd’hui : 20 défis avec écoute, associations de sons, mots à trous, lecture orale et sons complexes. Active le son de la tablette.';$('homeProgress').style.width=(state.index/20*100)+'%';$('homeCount').textContent=state.index+' questions sur 20 terminées';$('start').textContent=testMode&&state.completed?'Nouvelle série de 20 questions':state.completed?'Parcours terminé':state.index?'Reprendre mon parcours':'Commencer mes 20 questions';$('start').disabled=!testMode&&(state.completed||left()<=0);refreshJourney();renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
+function home(){show('home');$('intro').textContent=testMode?'Mode test parent : 20 questions par série, autant de séries que souhaité. Aucun impact sur les récompenses de l’enfant.':state.completed?'Parcours terminé ! Reviens demain pour 20 nouvelles questions adaptées.':'Aujourd’hui : 20 défis avec écoute, associations de sons, mots à trous, lecture orale et sons complexes. Active le son de la tablette.';$('homeProgress').style.width=(state.index/20*100)+'%';$('homeCount').textContent=state.index+' étapes franchies sur 20';$('start').textContent=testMode&&state.completed?'Nouvelle série de 20 questions':state.completed?'Parcours terminé':state.index?'Reprendre mon parcours':'Commencer mes 20 questions';$('start').disabled=!testMode&&(state.completed||left()<=0);refreshJourney();renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
 let startTime=0,answered=false,gateExpected=0,gateFails=0,hadHint=false;
 function play(){if(testMode&&state.completed){state.completed=false;state.index=0;state.points=0;state.plan=makePlan();save()}if(state.completed||left()<=0){home();return}show('play');render()}
 function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();return}let q=qAt(),w=q.w?vWord(q):null;answered=false;hadHint=false;startTime=performance.now();$('counter').textContent=(state.index+1)+'/20';$('mode').textContent=names[q.mode];refreshJourney();$('gameProgress').style.width=(state.index/20*100)+'%';$('feedback').textContent='';$('next').classList.add('hidden');$('choices').replaceChildren();$('choices')._images=null;$('choices').classList.remove('syllable-image-grid');$('interactive').replaceChildren();$('interactive').classList.add('hidden');$('oral').classList.toggle('hidden',q.mode!=='oral');$('gate').classList.add('hidden');$('adultButtons').classList.toggle('hidden',!(testMode&&q.mode==='oral'));$('parentCheck').classList.toggle('hidden',testMode&&q.mode==='oral');$('audio').classList.add('hidden');$('hint').classList.add('hidden');$('picture').classList.add('hidden');$('question').textContent='';$('word').textContent='';$('instruction').textContent='';
@@ -260,6 +260,33 @@ function renderChests(){
 function drawJourney(root,progress,compact=false){
  if(!root)return;
  root.replaceChildren();
+ if(!compact&&root.id==='journeySteps'){
+  const positions=Array.from({length:20},(_,i)=>{
+   const row=Math.floor(i/4),col=i%4;
+   return {x:(row%2===0?col:3-col)*24+14,y:89-row*17.5-(col%2)*1.4};
+  });
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('preserveAspectRatio','none');svg.classList.add('map-trail');
+  const path=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  path.setAttribute('points',positions.map(p=>p.x+','+p.y).join(' '));path.setAttribute('fill','none');
+  path.setAttribute('stroke','#fce2a0');path.setAttribute('stroke-width','5');path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-linejoin','round');
+  svg.append(path);
+  const outline=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  outline.setAttribute('points',positions.map(p=>p.x+','+p.y).join(' '));outline.setAttribute('fill','none');
+  outline.setAttribute('stroke','#b88949');outline.setAttribute('stroke-width','.8');outline.setAttribute('stroke-dasharray','1 2');
+  svg.append(outline);root.append(svg);
+  positions.forEach((p,i)=>{
+   const step=document.createElement('span');
+   step.className='journey-step map-step '+(i<progress?'done':i===progress?'current':'upcoming');
+   step.style.left=p.x+'%';step.style.top=p.y+'%';
+   step.textContent=i===19?'🎁':i<progress?'✓':i===progress?'🐉':String(i+1);
+   step.title='Étape '+(i+1)+(i<progress?' terminée':i===progress?' actuelle':' à venir');
+   root.append(step);
+  });
+  const dragon=root.parentElement.querySelector('.map-dragon');
+  if(dragon){const p=positions[Math.min(progress,19)];dragon.style.left=p.x+'%';dragon.style.top=p.y+'%';dragon.classList.toggle('hidden',progress>=20)}
+  return;
+ }
  for(let i=0;i<20;i++){
   const step=document.createElement('span');
   step.className='journey-step '+(i<progress?'done':i===progress?'current':'upcoming');
