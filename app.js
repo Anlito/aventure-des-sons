@@ -97,10 +97,10 @@ function qAt(){return state.plan[state.index]}
 function vWord(q){return vocab[Number(q.w.slice(1))]}
 function sync(){let n=Math.ceil(left());$('clock').textContent=testMode?'∞ TEST':String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('dayLabel').textContent='Défi '+Math.min(20,state.index+1)+'/20';$('scoreLabel').textContent=state.points+' pts';$('starsLabel').textContent=testMode?'TEST · sans étoiles':balance()+' ⭐'}
 function show(id){for(let p of ['home','play','end'])$(p).classList.toggle('hidden',p!==id);sync();window.scrollTo(0,0)}
-function home(){show('home');$('intro').textContent=testMode?'Mode test parent : 20 questions par série, autant de séries que souhaité. Aucun impact sur les récompenses de l’enfant.':state.completed?'Parcours terminé ! Reviens demain pour 20 nouvelles questions adaptées.':'Aujourd’hui : 20 défis avec écoute, associations de sons, mots à trous, lecture orale et compréhension. Active le son de la tablette.';$('homeProgress').style.width=(state.index/20*100)+'%';$('homeCount').textContent=state.index+' questions sur 20 terminées';$('start').textContent=testMode&&state.completed?'Nouvelle série de 20 questions':state.completed?'Parcours terminé':state.index?'Reprendre mon parcours':'Commencer mes 20 questions';$('start').disabled=!testMode&&(state.completed||left()<=0);$('worlds').replaceChildren();worlds.forEach((x,i)=>{let d=document.createElement('div'),img=document.createElement('img');img.src=worldImages[i];img.alt='';let t=document.createElement('div');t.textContent=x;d.append(img,t);$('worlds').append(d)});renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
+function home(){show('home');$('intro').textContent=testMode?'Mode test parent : 20 questions par série, autant de séries que souhaité. Aucun impact sur les récompenses de l’enfant.':state.completed?'Parcours terminé ! Reviens demain pour 20 nouvelles questions adaptées.':'Aujourd’hui : 20 défis avec écoute, associations de sons, mots à trous, lecture orale et sons complexes. Active le son de la tablette.';$('homeProgress').style.width=(state.index/20*100)+'%';$('homeCount').textContent=state.index+' questions sur 20 terminées';$('start').textContent=testMode&&state.completed?'Nouvelle série de 20 questions':state.completed?'Parcours terminé':state.index?'Reprendre mon parcours':'Commencer mes 20 questions';$('start').disabled=!testMode&&(state.completed||left()<=0);refreshJourney();renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
 let startTime=0,answered=false,gateExpected=0,gateFails=0,hadHint=false;
 function play(){if(testMode&&state.completed){state.completed=false;state.index=0;state.points=0;state.plan=makePlan();save()}if(state.completed||left()<=0){home();return}show('play');render()}
-function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();return}let q=qAt(),w=q.w?vWord(q):null;answered=false;hadHint=false;startTime=performance.now();$('counter').textContent=(state.index+1)+'/20';$('mode').textContent=names[q.mode];$('scene').src=worldImages[(state.index+dayNumber())%6];$('gameProgress').style.width=(state.index/20*100)+'%';$('feedback').textContent='';$('next').classList.add('hidden');$('choices').replaceChildren();$('choices')._images=null;$('choices').classList.remove('syllable-image-grid');$('interactive').replaceChildren();$('interactive').classList.add('hidden');$('oral').classList.toggle('hidden',q.mode!=='oral');$('gate').classList.add('hidden');$('adultButtons').classList.toggle('hidden',!(testMode&&q.mode==='oral'));$('parentCheck').classList.toggle('hidden',testMode&&q.mode==='oral');$('audio').classList.add('hidden');$('hint').classList.add('hidden');$('picture').classList.add('hidden');$('question').textContent='';$('word').textContent='';$('instruction').textContent='';
+function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();return}let q=qAt(),w=q.w?vWord(q):null;answered=false;hadHint=false;startTime=performance.now();$('counter').textContent=(state.index+1)+'/20';$('mode').textContent=names[q.mode];refreshJourney();$('gameProgress').style.width=(state.index/20*100)+'%';$('feedback').textContent='';$('next').classList.add('hidden');$('choices').replaceChildren();$('choices')._images=null;$('choices').classList.remove('syllable-image-grid');$('interactive').replaceChildren();$('interactive').classList.add('hidden');$('oral').classList.toggle('hidden',q.mode!=='oral');$('gate').classList.add('hidden');$('adultButtons').classList.toggle('hidden',!(testMode&&q.mode==='oral'));$('parentCheck').classList.toggle('hidden',testMode&&q.mode==='oral');$('audio').classList.add('hidden');$('hint').classList.add('hidden');$('picture').classList.add('hidden');$('question').textContent='';$('word').textContent='';$('instruction').textContent='';
  let options=[],correct='';
  if(q.mode==='gap'){
  let level=state.mastery[q.id]||0;let phase=level<=0?'image':level<2?'audio':'independent';$('instruction').textContent=phase==='image'?'Regarde l’image et complète le mot.':phase==='audio'?'Écoute le mot, puis complète-le.':'Complète le mot. Demande un indice si besoin.';$('word').textContent=w.mask;
@@ -218,9 +218,50 @@ $('oralYes').onclick=()=>oralAnswer(true);$('skipOral').onclick=skipOral;$('oral
 $('next').onclick=()=>{if(!answered)return;if(state.index>=20)finish();else render()};
 function finish(){if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
 function timeUp(){show('end');$('endTitle').textContent='🌙 À demain !';$('endText').textContent='Tes 10 minutes sont écoulées. Les questions et les points sont conservés, mais les étoiles sont distribuées à la fin des 20 questions. Le parcours reprend demain uniquement si tu n’as pas terminé celui d’aujourd’hui.'}
-const costs=[2,5,9,15];function renderChests(){let root=$('chestList');root.replaceChildren();costs.forEach((cost,i)=>{let d=document.createElement('div');d.className='chest';let img=document.createElement('img');img.src=chestSprites[i];img.alt='Coffre';let content=document.createElement('div');let h=document.createElement('strong');h.textContent=['Petit coffre','Coffre d’argent','Grand coffre','Coffre légendaire'][i]+' · '+cost+' ⭐';let p=document.createElement('p');p.className='mini';p.textContent=state.rewards[i];let b=document.createElement('button');b.className='gold';b.textContent='Ouvrir (-'+cost+' ⭐)';b.disabled=testMode||balance()<cost;b.onclick=()=>{if(balance()<cost)return;if(!confirm('Dépenser '+cost+' étoiles pour ce cadeau ?'))return;state.spent=(state.spent||0)+cost;state.chests.push({date:DAY(),tier:i});save();alert('Coffre ouvert ! Récompense : '+state.rewards[i]+'. Montre-le à un parent.');renderChests();sync()};content.append(h,p,b);d.append(img,content);root.append(d)})}
-let testExpected=0;function updateTestStatus(){$('testModeStatus').textContent=testMode?'Mode test ACTIVÉ':'Mode enfant normal';$('testModeToggle').textContent=testMode?'Désactiver le mode test':'Activer le mode test'}
+const costs=[2,5,9,15];function renderChests(){
+ let root=$('chestList');root.replaceChildren();
+ costs.forEach((cost,i)=>{
+  const d=document.createElement('div');d.className='chest chest-tier-'+(i+1);
+  const img=document.createElement('img');img.src=chestSprites[i];img.alt='Coffre de niveau '+(i+1);
+  const content=document.createElement('div');
+  const title=document.createElement('strong');title.textContent=['Petit coffre','Coffre moyen','Grand coffre','Coffre géant'][i]+' · '+cost+' ⭐';
+  const hint=document.createElement('p');hint.className='mini muted';hint.textContent=['Petite surprise','Belle surprise','Grande surprise','Surprise extraordinaire'][i];
+  const button=document.createElement('button');button.className='gold';
+  button.textContent=testMode?'Tester l’ouverture': 'Ouvrir (-'+cost+' ⭐)';
+  button.disabled=!testMode&&balance()<cost;
+  button.onclick=()=>{
+   if(testMode){alert('ESSAI DU COFFRE — '+title.textContent+'\nSurprise : '+state.rewards[i]+'\nAucune étoile dépensée.');return}
+   if(balance()<cost)return;
+   if(!confirm('Dépenser '+cost+' étoiles pour ouvrir ce coffre surprise ?'))return;
+   state.spent=(state.spent||0)+cost;state.chests.push({date:DAY(),tier:i});save();
+   alert('Coffre ouvert !\nTa surprise : '+state.rewards[i]+'.\nMontre-la à un parent.');
+   renderChests();sync();
+  };
+  content.append(title,hint,button);d.append(img,content);root.append(d);
+ });
+}
+function drawJourney(root,progress,compact=false){
+ if(!root)return;
+ root.replaceChildren();
+ for(let i=0;i<20;i++){
+  const step=document.createElement('span');
+  step.className='journey-step '+(i<progress?'done':i===progress?'current':'upcoming');
+  step.textContent=i===19?'🎁':i<progress?'✓':i===progress?'🐉':String(i+1);
+  step.title='Étape '+(i+1)+(i<progress?' terminée':i===progress?' actuelle':' à venir');
+  root.append(step);
+ }
+}
+function refreshJourney(){
+ const n=Math.max(0,Math.min(20,state.index));
+ drawJourney($('journeySteps'),n);
+ drawJourney($('journeyPlaySteps'),n,true);
+ $('journeyCount').textContent=n+' / 20';
+ $('journeyPlayLabel').textContent=n>=20?'Trésor atteint !':'Étape '+(n+1)+' sur 20';
+ $('journeyMessage').textContent=n>=20?'Bravo ! Tu as atteint le trésor !':n===0?'Le dragon t’attend au départ.':'Encore '+(20-n)+' étape'+(20-n>1?'s':'')+' avant le trésor !';
+}
+let testExpected=0;function updateTestStatus(){$('testModeStatus').textContent=testMode?'Mode test ACTIVÉ':'Mode enfant normal';$('testModeToggle').textContent=testMode?'Désactiver le mode test':'Activer le mode test';$('quickExitTest').classList.toggle('hidden',!testMode)}
 $('testModeToggle').onclick=()=>{if(!parentUnlocked)return;localStorage.setItem(TEST_FLAG,testMode?'0':'1');location.reload()};
+$('quickExitTest').onclick=()=>{if(!testMode)return;localStorage.setItem(TEST_FLAG,'0');location.reload()};
 $('testConfirm').onclick=()=>{if(Number($('testMathAnswer').value)!==testExpected||!$('testMathAnswer').value){$('testError').textContent='Calcul incorrect. Réessaie.';return}localStorage.setItem(TEST_FLAG,testMode?'0':'1');location.reload()};
 $('settings').onclick=()=>{if(!parentUnlocked)return;updateTestStatus();$('settingsPanel').classList.toggle('hidden');let root=$('rewardFields');root.replaceChildren();state.rewards.forEach((reward,i)=>{let label=document.createElement('label');label.textContent='Coffre '+(i+1);label.style.display='block';let input=document.createElement('input');input.id='reward'+i;input.style.width='100%';input.style.fontSize='1rem';input.value=reward;root.append(label,input)})};
 $('saveRewards').onclick=()=>{if(!parentUnlocked)return;state.rewards=costs.map((_,i)=>$('reward'+i).value.trim()||blank().rewards[i]);save();renderChests();$('settingsPanel').classList.add('hidden')};
