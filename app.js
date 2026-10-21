@@ -100,7 +100,7 @@ function sync(){let n=Math.ceil(left());$('clock').textContent=testMode?'∞ TES
 function show(id){if(id!=='play')$('answerOverlay').classList.add('hidden');for(let p of ['home','play','end','chests'])$(p).classList.toggle('hidden',p!==id);sync();window.scrollTo(0,0)}
 function home(){show('home');$('homeProgress').style.width=(state.index/20*100)+'%';$('homeActionCount').textContent=state.index+'/20';$('start').disabled=!testMode&&(state.completed||left()<=0);refreshJourney();renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
 $('openTreasury').onclick=()=>{show('chests');renderChests()};
-$('closeTreasury').onclick=home;
+
 $('homeMap').onclick=()=>{if(!$('start').disabled)play()};
 $('homeMap').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&!$('start').disabled){e.preventDefault();play()}};
 
