@@ -31,3 +31,56 @@
 .chest>div{min-width:0;flex:1}
 .chest button{margin-top:5px}
 @media(max-width:390px){.journey-steps{gap:4px}.journey-step{border-width:1px}.chest-tier-4 img{width:108px;height:108px}}
+
+/* Univers de jeu : cartes, boutons et parcours plus ludiques */
+body{background:radial-gradient(circle at 12% 8%,#fff2c7 0,transparent 30%),radial-gradient(circle at 85% 20%,#c9e4ff 0,transparent 36%),linear-gradient(180deg,#d9ecff,#edf3ff 65%,#e8e8ff);min-height:100vh}
+header{background:linear-gradient(125deg,#233b96,#5264cb 60%,#8969d5);border-bottom:5px solid #ffcf69;box-shadow:0 6px 20px #24327b33}
+header h1{text-shadow:0 2px 3px #16275a55}
+#home,#play,#end{border:3px solid #fff;box-shadow:0 9px 0 #c8d6f3,0 15px 30px #3d5b9d24}
+#home h2{font-size:clamp(1.5rem,5vw,2.2rem);color:#284c9d}
+#start,#bonusStart{min-height:65px;font-size:1.15rem;border-radius:20px;box-shadow:0 5px 0 #173c85;transition:transform .15s}
+#bonusStart{box-shadow:0 5px 0 #d49b2d}
+#start:active,#bonusStart:active{transform:translateY(4px);box-shadow:none}
+.bonus-panel{background:linear-gradient(130deg,#fff0bc,#ffe1a4);border:3px solid #f3c767;border-radius:22px;padding:17px;margin:18px 0;box-shadow:0 5px 0 #d8ad56}
+.bonus-panel h3{font-size:1.35rem;color:#7b4916;margin:0}
+.journey{background:linear-gradient(135deg,#d8f9e6,#d5eaff);border:3px solid #b3d7db}
+.journey-step.current{animation:dragonBounce 1.8s ease-in-out infinite}
+@keyframes dragonBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+#play .prompt{border:3px solid #dce5ff;background:linear-gradient(160deg,#f8f9ff,#edf1ff)}
+#play .choices button{min-height:83px;border-radius:20px;box-shadow:0 4px 0 #bdcbea}
+#play .choices button:active{transform:translateY(3px);box-shadow:none}
+#play #next{min-height:66px;font-size:1.15rem;box-shadow:0 5px 0 #153c86}
+
+/* Salle des trésors : les cinq coffres sont visibles en permanence */
+.treasure-shop{background:linear-gradient(155deg,#fff8e9,#ffefd3 60%,#fce6bf);border:3px solid #eac27c;box-shadow:0 8px 0 #cfa766,0 14px 28px #80613325}
+.shop-heading{display:flex;align-items:center;gap:13px}
+.shop-heading h2{color:#784415;margin:0;font-size:clamp(1.4rem,5vw,2rem)}
+.shop-heading p{margin:3px 0 0;color:#825e3b}
+.shop-icon{font-size:3rem}
+.star-wallet{display:inline-block;margin:16px 0 8px;padding:10px 16px;background:#fff9d6;border:2px solid #e9c35e;border-radius:99px;color:#704918;font-weight:850;box-shadow:0 3px 0 #e8ca80}
+.treasure-grid{display:flex;align-items:flex-end;justify-content:center;gap:10px;flex-wrap:wrap;padding:14px 5px 7px}
+.treasure-chest{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;flex:1 1 130px;max-width:210px;min-width:110px;background:linear-gradient(180deg,#fffdf7,#fff0d2);border:3px solid #e9c785;border-radius:21px;padding:12px 6px 13px;min-height:218px;box-shadow:0 6px 0 #cda968,0 9px 15px #75582a24;transition:transform .18s,box-shadow .18s}
+.treasure-chest.available{border-color:#e5aa3e;background:linear-gradient(180deg,#fffdf1,#ffe3a3)}
+.treasure-chest.available:active{transform:translateY(5px);box-shadow:0 1px 0 #cda968}
+.treasure-chest.locked{opacity:.82;filter:saturate(.75)}
+.treasure-price{background:#ffcc4b;border:2px solid #d49b27;border-radius:99px;padding:5px 12px;color:#623d00;font-size:1.05rem;font-weight:900;white-space:nowrap}
+.treasure-art{display:flex;align-items:flex-end;justify-content:center;height:150px;width:100%}
+.treasure-art img{display:block;object-fit:contain;filter:drop-shadow(0 7px 3px #65431936);max-width:100%;height:auto}
+.tier-1 .treasure-art img{width:64px;max-height:65px}
+.tier-2 .treasure-art img{width:83px;max-height:82px}
+.tier-3 .treasure-art img{width:107px;max-height:106px}
+.tier-4 .treasure-art img{width:130px;max-height:130px}
+.tier-5 .treasure-art img{width:155px;max-height:148px}
+.treasure-name{font-weight:900;color:#70441d;text-align:center}
+.treasure-status{font-size:.82rem;color:#856032;font-weight:800}
+.treasure-tip{text-align:center;color:#785d3e;margin-bottom:0}
+.treasure-overlay{position:fixed;inset:0;z-index:1000;background:#1a235abf;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.treasure-dialog{width:min(100%,430px);background:linear-gradient(155deg,#fffdf4,#ffe6aa);border:5px solid #ffd05e;border-radius:30px;text-align:center;padding:24px 18px;box-shadow:0 16px 0 #b77d32,0 22px 55px #0006;animation:treasurePop .3s ease-out}
+@keyframes treasurePop{from{transform:scale(.83);opacity:0}to{transform:scale(1);opacity:1}}
+.treasure-sparkles{font-size:1.6rem;letter-spacing:12px}
+.treasure-dialog-icon{font-size:5rem;margin:10px 0}
+.treasure-dialog h2{color:#7a4915;font-size:1.8rem}
+.treasure-dialog p{font-size:1.2rem;font-weight:700;color:#654721}
+.treasure-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+.treasure-actions button{flex:1;min-width:125px;min-height:58px}
+@media(max-width:500px){.treasure-grid{gap:8px}.treasure-chest{flex-basis:calc(50% - 8px);max-width:none;min-width:0;min-height:210px}.treasure-art{height:130px}.tier-5{flex-basis:65%;max-width:230px}.tier-5 .treasure-art{height:160px}.shop-icon{font-size:2.3rem}}
