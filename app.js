@@ -97,7 +97,7 @@ ensureDay();
 function qAt(){return state.plan[state.index]}
 function vWord(q){return vocab[Number(q.w.slice(1))]}
 function sync(){let n=Math.ceil(left());$('clock').textContent=testMode?'∞ TEST':String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('dayLabel').textContent='Défi '+Math.min(20,state.index+1)+'/20';$('scoreLabel').textContent=state.points+' pts';$('starsLabel').textContent=testMode?'TEST · sans étoiles':balance()+' ⭐'}
-function show(id){for(let p of ['home','play','end','chests'])$(p).classList.toggle('hidden',p!==id);sync();window.scrollTo(0,0)}
+function show(id){if(id!=='play')$('answerOverlay').classList.add('hidden');for(let p of ['home','play','end','chests'])$(p).classList.toggle('hidden',p!==id);sync();window.scrollTo(0,0)}
 function home(){show('home');$('homeProgress').style.width=(state.index/20*100)+'%';$('homeActionCount').textContent=state.index+'/20';$('start').disabled=!testMode&&(state.completed||left()<=0);refreshJourney();renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
 $('openTreasury').onclick=()=>{show('chests');renderChests()};
 $('closeTreasury').onclick=home;
@@ -221,7 +221,7 @@ $('unlock').onclick=()=>{if(Number($('mathAnswer').value)===gateExpected&&$('mat
 function skipOral(){if(answered||qAt()?.mode!=='oral')return;answered=true;const q=qAt();if(!parentDemo){state.answers.push({id:q.id,mode:q.mode,ok:null,skipped:true,points:0,seconds:0,at:new Date().toISOString()});state.index++;save()}$('feedback').textContent='Lecture passée : aucun point perdu, ce mot sera reproposé.';$('next').classList.remove('hidden');$('next').textContent='Question suivante →';sync()}
 function oralAnswer(ok){if(answered||left()<=0)return;answered=true;$('adultButtons').classList.add('hidden');feedback(qAt(),ok,true)}
 $('oralYes').onclick=()=>oralAnswer(true);$('skipOral').onclick=skipOral;$('oralNo').onclick=()=>oralAnswer(false);
-$('next').onclick=()=>{if(!answered)return;if(state.index>=20)finish();else render()};
+$('next').onclick=()=>{if(!answered)return;$('answerOverlay').classList.add('hidden');$('feedback').textContent='';$('next').classList.add('hidden');if(state.index>=20)finish();else render()};
 /* Une seule fenêtre de résultat pour parcours, bonus et exemples parents. */
 function updateAnswerOverlay(){
  const message=$('feedback').textContent.trim();
@@ -239,7 +239,7 @@ answerObserver.observe($('feedback'),{childList:true,characterData:true,subtree:
 answerObserver.observe($('next'),{attributes:true,attributeFilter:['class']});
 updateAnswerOverlay();
 
-function finish(){if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
+function finish(){$('answerOverlay').classList.add('hidden');if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
 function timeUp(){show('end');$('endTitle').textContent='🌙 À demain !';$('endText').textContent='Tes 10 minutes sont écoulées. Les questions et les points sont conservés, mais les étoiles sont distribuées à la fin des 20 questions. Le parcours reprend demain uniquement si tu n’as pas terminé celui d’aujourd’hui.'}
 const costs=[2,5,9,15,25];
 function treasureDialog(title,message,buttons,icon='🎁'){
