@@ -5,7 +5,7 @@ const worldImages=['assets/illustration-10.jpg', 'assets/illustration-11.jpg', '
 
 const $=id=>document.getElementById(id), TEST_FLAG='sons_parent_test_mode', testMode=localStorage.getItem(TEST_FLAG)==='1', KEY=testMode?'sons_parent_test_data':'sons_v8_20_daily', DAY=()=>new Date().toLocaleDateString('en-CA'), LIMIT=600;
 const worlds=['La forêt des sons','La grotte des lettres','La rivière des syllabes','Le village des mots','Le château des phrases','Le royaume des histoires'];
-const names={gap:'Mot à trous',grapheme:'Sons et lettres',hunt:'Chasse au son',oral:'Lecture à voix haute',syllable:'Syllabes',sentence:'Compréhension',mirror:'Lettres miroirs',listenWord:'J’écoute un mot',listenPart:'J’écoute un son',soundMatch:'Même son ?',blend:'J’assemble à l’oreille',match:'Je relie',order:'Je remets en ordre',type:'J’écris',cousinFill:'J’écoute et je complète'};
+const names={gap:'Mot à trous',hunt:'Chasse au son',oral:'Lecture à voix haute',syllable:'Syllabes',sentence:'Compréhension',mirror:'Lettres miroirs',listenWord:'J’écoute un mot',listenPart:'J’écoute un son',soundMatch:'Même son ?',match:'Je relie',order:'Je remets en ordre',cousinFill:'J’écoute et je complète'};
 const vocab=`bateau|bat__|eau|⛵|ba · teau;chapeau|chap__|eau|🎩|cha · peau;cadeau|cad__|eau|🎁|ca · deau;oiseau|ois__|eau|🐦|oi · seau;gâteau|gât__|eau|🎂|gâ · teau;château|chât__|eau|🏰|châ · teau;manteau|mant__|eau|🧥|man · teau;tableau|tabl__|eau|🖼️|ta · bleau;marteau|mart__|eau|🔨|mar · teau;drapeau|drap__|eau|🚩|dra · peau;lapin|lap__|in|🐰|la · pin;jardin|jard__|in|🌷|jar · din;sapin|sap__|in|🌲|sa · pin;matin|mat__|in|🌅|ma · tin;chemin|chem__|in|🛤️|che · min;moulin|moul__|in|🌬️|mou · lin;raisin|rais__|in|🍇|rai · sin;requin|requ__|in|🦈|re · quin;poussin|pouss__|in|🐥|pous · sin;voisin|vois__|in|🏠|voi · sin;poisson|p__sson|oi|🐟|poi · sson;voiture|v__ture|oi|🚗|voi · ture;étoile|ét__le|oi|⭐|é · toile;poire|p__re|oi|🍐|poi · re;boîte|b__te|oi|📦|boî · te;roi|r__|oi|👑|roi;trois|tr__s|oi|3️⃣|trois;oiseau|__seau|oi|🐦|oi · seau;toit|t__t|oi|🏠|toit;noix|n__x|oi|🌰|noix;loup|l__p|ou|🐺|loup;poule|p__le|ou|🐔|pou · le;souris|s__ris|ou|🐭|sou · ris;route|r__te|ou|🛣️|rou · te;roue|r__e|ou|🛞|roue;mouton|m__ton|ou|🐑|mou · ton;bougie|b__gie|ou|🕯️|bou · gie;soupe|s__pe|ou|🥣|sou · pe;fourmi|f__rmi|ou|🐜|four · mi;couleur|c__leur|ou|🎨|cou · leur;pont|p__t|on|🌉|pont;ballon|ball__|on|🎈|ba · llon;bonbon|bonb__|on|🍬|bon · bon;citron|citr__|on|🍋|ci · tron;cochon|coch__|on|🐷|co · chon;maison|mais__|on|🏠|mai · son;avion|avi__|on|✈️|a · vion;lion|li__|on|🦁|lion;melon|mel__|on|🍈|me · lon;bouton|bout__|on|🔘|bou · ton;maman|mam__|an|👩|ma · man;panda|p__da|an|🐼|pan · da;chanson|ch__son|an|🎵|chan · son;orange|or__ge|an|🍊|o · range;gant|g__t|an|🧤|gant;dent|d__t|en|🦷|dent;vent|v__t|en|💨|vent;serpent|serp__t|en|🐍|ser · pent;enfant|__fant|en|🧒|en · fant;temps|t__ps|em|⏰|temps;lampe|l__pe|am|💡|lam · pe;maison|m__son|ai|🏠|mai · son;lait|l__t|ai|🥛|lait;balai|bal__|ai|🧹|ba · lai;chaise|ch__se|ai|🪑|chai · se;fraise|fr__se|ai|🍓|frai · se;neige|n__ge|ei|❄️|nei · ge;reine|r__ne|ei|👸|rei · ne;seize|s__ze|ei|1️⃣6️⃣|seize;peine|p__ne|ei|😟|pei · ne;chou|__ou|ch|🥬|chou;chat|__at|ch|🐈|chat;cheval|__eval|ch|🐎|che · val;chien|__ien|ch|🐕|chien;champignon|__ampignon|ch|🍄|cham · pi · gnon;montagne|monta__e|gn|⛰️|mon · ta · gne;ligne|li__e|gn|📏|li · gne;peigne|pei__e|gn|🪮|pei · gne;coin|c__|oin|📐|coin;loin|l__|oin|🏞️|loin;point|p__t|oin|📍|point;pingouin|ping__|ouin|🐧|pin · gouin;oui|__|oui|👍|oui;parfum|parf__|um|🌸|par · fum;un|__|un|1️⃣|un;clé|cl__|é|🔑|clé;bébé|b__b__|é|👶|bé · bé;été|__t__|é|☀️|é · té;père|p__re|è|👨|père;mère|m__re|è|👩|mère;chèvre|ch__vre|è|🐐|chè · vre`.split(';').map((line,i)=>{let [word,mask,part,emoji,split]=line.split('|');return{id:'w'+i,word,mask,part,emoji,split}});
 const stories=[
 ['Le chat dort sur le coussin.','Où dort le chat ?','Sur le coussin','Dans le jardin','Sur le toit','Dans la voiture'],
@@ -66,7 +66,6 @@ function pool(){let all=[];
  all.push({id:'o'+w.id,mode:'oral',w:w.id});
  all.push({id:'h'+w.id,mode:'hunt',w:w.id});
  all.push({id:'s'+w.id,mode:'syllable',w:w.id});
- all.push({id:'ty'+w.id,mode:'type',w:w.id});
  }
  for(let i=0;i<cousinWords.length;i++)all.push({id:'cf'+i,mode:'cousinFill',cousin:i});
  for(let i=0;i<soundFamilies.length;i++){
@@ -74,21 +73,20 @@ function pool(){let all=[];
  all.push({id:'sm'+i,mode:'soundMatch',family:i});
 }
 for(let i=0;i<vocab.length;i++)all.push({id:'lw'+i,mode:'listenWord',w:vocab[i].id});
-for(let i=0;i<blendItems.length;i++){all.push({id:'bl'+i,mode:'blend',blend:i});all.push({id:'or'+i,mode:'order',blend:i})}
+for(let i=0;i<blendItems.length;i++){all.push({id:'or'+i,mode:'order',blend:i})}
 for(let i=0;i<soundFamilies.length;i++)all.push({id:'ma'+i,mode:'match',family:i});
  for(let i=0;i<stories.length;i++)all.push({id:'t'+i,mode:'sentence',story:i});
  for(let x of ['b','d','p','q'])all.push({id:'m'+x,mode:'mirror',letter:x});
- for(let x of ['ou','on','an','en','oi','oin','ouin','oui','ai','ei','in','un','eau','ch','gn','é','è'])all.push({id:'r'+x,mode:'grapheme',part:x});
  return all}
 const ALL=pool();
 function makePlan(n=dayNumber()){let randomSeed=n*127+391;function rng(){randomSeed=(Math.imul(randomSeed,1664525)+1013904223)>>>0;return randomSeed/4294967296}
- let target={gap:3,oral:2,hunt:1,syllable:1,sentence:1,mirror:1,grapheme:1,listenWord:2,listenPart:1,soundMatch:1,blend:1,match:1,order:1,type:1,cousinFill:2},plan=[];
+ let target={gap:4,oral:2,hunt:2,syllable:2,sentence:1,mirror:1,listenWord:2,listenPart:1,soundMatch:1,match:1,order:1,cousinFill:2},plan=[];
  for(let mode of Object.keys(target)){
  let cand=ALL.filter(x=>x.mode===mode).map(x=>{let mastery=state.mastery[x.id]||0,last=state.lastSeen[x.id]||0;let due=n-last>=Math.max(1,Math.min(7,mastery+1));let weight=(mastery<0?5:mastery===0?2:1)+(due?3:0)+(n-last>2?2:0)+rng()*3;return{x,weight}}).sort((a,b)=>b.weight-a.weight);
  plan.push(...cand.slice(0,target[mode]).map(y=>y.x))}
  // Shuffle with stable daily seed; plan saved so refresh never changes it.
  for(let i=plan.length-1;i>0;i--){let j=Math.floor(rng()*(i+1));[plan[i],plan[j]]=[plan[j],plan[i]]}return plan}
-function ensureDay(){if(state.date!==DAY()){archiveSession('nouveau jour');state.date=DAY();state.seconds=0;state.points=0;state.index=0;state.completed=false;state.plan=[]}if(!state.plan||state.plan.length!==20)state.plan=makePlan();if(!testMode&&state.index===0){let override=readNextOverride();if(override)state.plan=override}save()}
+function ensureDay(){if(state.date!==DAY()){archiveSession('nouveau jour');state.date=DAY();state.seconds=0;state.points=0;state.index=0;state.completed=false;state.plan=[]}if(!state.plan||state.plan.length!==20)state.plan=makePlan();else {let old=state.plan;for(let i=Math.max(0,state.index);i<old.length;i++){if(!ALL.some(q=>q.id===old[i].id)){let repl=makePlan().find(q=>!old.some(x=>x.id===q.id)&&!old.slice(0,i).some(x=>x.id===q.id));if(repl)old[i]=repl}}}if(!testMode&&state.index===0){let override=readNextOverride();if(override)state.plan=override}save()}
 ensureDay();
 function qAt(){return state.plan[state.index]}
 function vWord(q){return vocab[Number(q.w.slice(1))]}
