@@ -5,7 +5,7 @@ const worldImages=['assets/illustration-10.jpg', 'assets/illustration-11.jpg', '
 
 const $=id=>document.getElementById(id), TEST_FLAG='sons_parent_test_mode', testMode=localStorage.getItem(TEST_FLAG)==='1', KEY=testMode?'sons_parent_test_data':'sons_v8_20_daily', DAY=()=>new Date().toLocaleDateString('en-CA'), LIMIT=600;
 const worlds=['La forêt des sons','La grotte des lettres','La rivière des syllabes','Le village des mots','Le château des phrases','Le royaume des histoires'];
-const names={gap:'Mot à trous',hunt:'Chasse au son',oral:'Lecture à voix haute',syllable:'Syllabes',sentence:'Compréhension',mirror:'Lettres miroirs',listenWord:'J’écoute un mot',listenPart:'J’écoute un son',soundMatch:'Même son ?',match:'Je relie',order:'Je remets en ordre',cousinFill:'J’écoute et je complète'};
+const names={gap:'Mot à trous',hunt:'Chasse au son',oral:'Lecture à voix haute',syllable:'Syllabes',listenWord:'J’écoute un mot',listenPart:'J’écoute un son',soundMatch:'Même son ?',match:'Je relie',order:'Je remets en ordre',cousinFill:'J’écoute et je complète'};
 const vocab=`bateau|bat__|eau|⛵|ba · teau;chapeau|chap__|eau|🎩|cha · peau;cadeau|cad__|eau|🎁|ca · deau;oiseau|ois__|eau|🐦|oi · seau;gâteau|gât__|eau|🎂|gâ · teau;château|chât__|eau|🏰|châ · teau;manteau|mant__|eau|🧥|man · teau;tableau|tabl__|eau|🖼️|ta · bleau;marteau|mart__|eau|🔨|mar · teau;drapeau|drap__|eau|🚩|dra · peau;lapin|lap__|in|🐰|la · pin;jardin|jard__|in|🌷|jar · din;sapin|sap__|in|🌲|sa · pin;matin|mat__|in|🌅|ma · tin;chemin|chem__|in|🛤️|che · min;moulin|moul__|in|🌬️|mou · lin;raisin|rais__|in|🍇|rai · sin;requin|requ__|in|🦈|re · quin;poussin|pouss__|in|🐥|pous · sin;voisin|vois__|in|🏠|voi · sin;poisson|p__sson|oi|🐟|poi · sson;voiture|v__ture|oi|🚗|voi · ture;étoile|ét__le|oi|⭐|é · toile;poire|p__re|oi|🍐|poi · re;boîte|b__te|oi|📦|boî · te;roi|r__|oi|👑|roi;trois|tr__s|oi|3️⃣|trois;oiseau|__seau|oi|🐦|oi · seau;toit|t__t|oi|🏠|toit;noix|n__x|oi|🌰|noix;loup|l__p|ou|🐺|loup;poule|p__le|ou|🐔|pou · le;souris|s__ris|ou|🐭|sou · ris;route|r__te|ou|🛣️|rou · te;roue|r__e|ou|🛞|roue;mouton|m__ton|ou|🐑|mou · ton;bougie|b__gie|ou|🕯️|bou · gie;soupe|s__pe|ou|🥣|sou · pe;fourmi|f__rmi|ou|🐜|four · mi;couleur|c__leur|ou|🎨|cou · leur;pont|p__t|on|🌉|pont;ballon|ball__|on|🎈|ba · llon;bonbon|bonb__|on|🍬|bon · bon;citron|citr__|on|🍋|ci · tron;cochon|coch__|on|🐷|co · chon;maison|mais__|on|🏠|mai · son;avion|avi__|on|✈️|a · vion;lion|li__|on|🦁|lion;melon|mel__|on|🍈|me · lon;bouton|bout__|on|🔘|bou · ton;maman|mam__|an|👩|ma · man;panda|p__da|an|🐼|pan · da;chanson|ch__son|an|🎵|chan · son;orange|or__ge|an|🍊|o · range;gant|g__t|an|🧤|gant;dent|d__t|en|🦷|dent;vent|v__t|en|💨|vent;serpent|serp__t|en|🐍|ser · pent;enfant|__fant|en|🧒|en · fant;temps|t__ps|em|⏰|temps;lampe|l__pe|am|💡|lam · pe;maison|m__son|ai|🏠|mai · son;lait|l__t|ai|🥛|lait;balai|bal__|ai|🧹|ba · lai;chaise|ch__se|ai|🪑|chai · se;fraise|fr__se|ai|🍓|frai · se;neige|n__ge|ei|❄️|nei · ge;reine|r__ne|ei|👸|rei · ne;seize|s__ze|ei|1️⃣6️⃣|seize;peine|p__ne|ei|😟|pei · ne;chou|__ou|ch|🥬|chou;chat|__at|ch|🐈|chat;cheval|__eval|ch|🐎|che · val;chien|__ien|ch|🐕|chien;champignon|__ampignon|ch|🍄|cham · pi · gnon;montagne|monta__e|gn|⛰️|mon · ta · gne;ligne|li__e|gn|📏|li · gne;peigne|pei__e|gn|🪮|pei · gne;coin|c__|oin|📐|coin;loin|l__|oin|🏞️|loin;point|p__t|oin|📍|point;pingouin|ping__|ouin|🐧|pin · gouin;oui|__|oui|👍|oui;parfum|parf__|um|🌸|par · fum;un|__|un|1️⃣|un;clé|cl__|é|🔑|clé;bébé|b__b__|é|👶|bé · bé;été|__t__|é|☀️|é · té;père|p__re|è|👨|père;mère|m__re|è|👩|mère;chèvre|ch__vre|è|🐐|chè · vre`.split(';').map((line,i)=>{let [word,mask,part,emoji,split]=line.split('|');return{id:'w'+i,word,mask,part,emoji,split}});
 const stories=[
 ['Le chat dort sur le coussin.','Où dort le chat ?','Sur le coussin','Dans le jardin','Sur le toit','Dans la voiture'],
@@ -68,6 +68,7 @@ function pool(){let all=[];
  all.push({id:'s'+w.id,mode:'syllable',w:w.id});
  }
  for(let i=0;i<cousinWords.length;i++)all.push({id:'cf'+i,mode:'cousinFill',cousin:i});
+ for(let w of vocab.filter(x=>x.mask.includes('__')&&x.part.length>1))all.push({id:'cfv'+w.id,mode:'cousinFill',w:w.id});
  for(let i=0;i<soundFamilies.length;i++){
  all.push({id:'lp'+i,mode:'listenPart',family:i});
  all.push({id:'sm'+i,mode:'soundMatch',family:i});
@@ -75,12 +76,11 @@ function pool(){let all=[];
 for(let i=0;i<vocab.length;i++)all.push({id:'lw'+i,mode:'listenWord',w:vocab[i].id});
 for(let i=0;i<blendItems.length;i++){all.push({id:'or'+i,mode:'order',blend:i})}
 for(let i=0;i<soundFamilies.length;i++)all.push({id:'ma'+i,mode:'match',family:i});
- for(let i=0;i<stories.length;i++)all.push({id:'t'+i,mode:'sentence',story:i});
- for(let x of ['b','d','p','q'])all.push({id:'m'+x,mode:'mirror',letter:x});
+ 
  return all}
 const ALL=pool();
 function makePlan(n=dayNumber()){let randomSeed=n*127+391;function rng(){randomSeed=(Math.imul(randomSeed,1664525)+1013904223)>>>0;return randomSeed/4294967296}
- let target={gap:4,oral:2,hunt:2,syllable:2,sentence:1,mirror:1,listenWord:2,listenPart:1,soundMatch:1,match:1,order:1,cousinFill:2},plan=[];
+ let target={gap:3,oral:2,hunt:2,syllable:2,listenWord:2,listenPart:2,soundMatch:2,match:2,order:1,cousinFill:2},plan=[];
  for(let mode of Object.keys(target)){
  let cand=ALL.filter(x=>x.mode===mode).map(x=>{let mastery=state.mastery[x.id]||0,last=state.lastSeen[x.id]||0;let due=n-last>=Math.max(1,Math.min(7,mastery+1));let weight=(mastery<0?5:mastery===0?2:1)+(due?3:0)+(n-last>2?2:0)+rng()*3;return{x,weight}}).sort((a,b)=>b.weight-a.weight);
  plan.push(...cand.slice(0,target[mode]).map(y=>y.x))}
@@ -185,25 +185,25 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  $('audio').classList.remove('hidden');correct=q.letter;options=shuffle(['b','d','p','q']);
  }
  else if(q.mode==='grapheme'){$('instruction').textContent='Repère les lettres qui forment ce son.';$('word').textContent=q.part;correct=q.part;options=shuffle([q.part,...shuffle(choices.filter(x=>x!==q.part)).slice(0,3)])}
- if(q.mode==='cousinFill')setTimeout(()=>{if(qAt()===q && !answered)try{speak(cousinWords[q.cousin][0])}catch(e){}},250);
+ if(q.mode==='cousinFill')setTimeout(()=>{if(qAt()===q && !answered)try{speak(q.w?vWord(q).word:cousinWords[q.cousin][0])}catch(e){}},250);
  if(q.mode==='mirror')setTimeout(()=>{if(qAt()===q && !answered)try{speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter])}catch(e){}},350);
  if(q.mode!=='sentence')$('word').style.fontSize='';
  if(!['oral','type','order','match'].includes(q.mode))options.forEach(opt=>{let b=document.createElement('button');b.textContent=opt;b.onclick=()=>answer(opt,correct,b);$('choices').append(b)})
 }
-function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?cousinWords[q.cousin][2]:q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
+function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?(q.w?vWord(q).part:cousinWords[q.cousin][2]):q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
 function answer(opt,correct,btn){if(answered||left()<=0)return;answered=true;let q=qAt(),ok=opt===correct;for(let b of $('choices').children){b.disabled=true;if(b.textContent===correct)b.classList.add('correct');else if(b===btn)b.classList.add('wrong')}feedback(q,ok)}
 function speak(text,rate=.78){if(!('speechSynthesis'in window)){alert('La lecture audio n’est pas disponible sur cet appareil.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';u.rate=rate;let v=speechSynthesis.getVoices().find(x=>x.lang?.toLowerCase().startsWith('fr'));if(v)u.voice=v;speechSynthesis.speak(u)}
 $('readInstruction').onclick=()=>{const consigne=$('instruction').textContent.trim();if(consigne)speak(consigne)};
 $('audio').onclick=()=>{let q=qAt();if(q.mode==='gap')hadHint=true;
  if(q.mode==='listenPart'||q.mode==='soundMatch')speak(soundFamilies[q.family][1]);
- else if(q.mode==='cousinFill')speak(cousinWords[q.cousin][0]);
+ else if(q.mode==='cousinFill')speak(q.w?vWord(q).word:cousinWords[q.cousin][0]);
  else if(q.mode==='mirror')speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter]);
  else if(q.mode==='order'){let f=blendItems[q.blend];speak(f[2])}
  else if(q.mode==='match'){speak(soundFamilies[q.family][1])}
  else if(q.mode==='blend'){let f=blendItems[q.blend];speak(f[2],.62)}
  else speak(vWord(q).word);
 };
-$('hint').onclick=()=>{hadHint=true;let q=qAt();if(q.mode==='cousinFill'){$('picture').textContent=cousinWords[q.cousin][3];$('picture').classList.remove('hidden');return}let w=vWord(q);if(q.mode==='oral')$('question').textContent=w.split;else{$('picture').textContent=w.emoji;$('picture').classList.remove('hidden');$('audio').classList.remove('hidden')}};
+$('hint').onclick=()=>{hadHint=true;let q=qAt();if(q.mode==='cousinFill'){$('picture').textContent=q.w?vWord(q).emoji:cousinWords[q.cousin][3];$('picture').classList.remove('hidden');return}let w=vWord(q);if(q.mode==='oral')$('question').textContent=w.split;else{$('picture').textContent=w.emoji;$('picture').classList.remove('hidden');$('audio').classList.remove('hidden')}};
 $('parentCheck').onclick=()=>{if(testMode&&parentUnlocked){$('adultButtons').classList.remove('hidden');return}gateFails=0;newGate();$('gate').classList.remove('hidden')};
 function newGate(){let a=6+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*7);gateExpected=a*b;$('mathQuestion').textContent='Pour le parent : combien font '+a+' × '+b+' ?';$('mathAnswer').value='';$('gateError').textContent=''}
 $('unlock').onclick=()=>{if(Number($('mathAnswer').value)===gateExpected&&$('mathAnswer').value!==''){$('gate').classList.add('hidden');$('adultButtons').classList.remove('hidden')}else{gateFails++;$('gateError').textContent='Réponse incorrecte.';newGate();if(gateFails>=3){$('gate').classList.add('hidden');$('gateError').textContent='Demande à un parent.'}}};
@@ -227,37 +227,35 @@ const NEXT_PLAN_KEY='sons_parent_next_plan_v1';
 function readNextOverride(){try{let x=JSON.parse(localStorage.getItem(NEXT_PLAN_KEY)||'null');return x&&x.date===nextDayString()&&Array.isArray(x.ids)&&x.ids.length===20&&x.ids.every(id=>ALL.some(q=>q.id===id))?x.ids.map(id=>ALL.find(q=>q.id===id)):null}catch{return null}}
 function nextDayString(){let d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString('en-CA')}
 function archiveSession(status){if(testMode||!state.index)return;let entry={date:state.date,status,answered:state.index,points:state.points,stars:state.stars||0,answers:state.answers.slice()};let pos=state.history.findIndex(x=>x.date===entry.date);if(pos>=0)state.history[pos]=entry;else state.history.unshift(entry);state.history=state.history.slice(0,60);save()}
-function questionLabel(q){if(!q)return 'Exercice inconnu';let detail=q.w?vWord(q).word:q.blend!==undefined?blendItems[q.blend]?.[2]:q.family!==undefined?soundFamilies[q.family]?.[0]:q.cousin!==undefined?cousinWords[q.cousin]?.[2]:q.mode==='sentence'?'Phrase de compréhension':q.mode==='mirror'?'Lettres b/d/p/q':q.mode==='match'?'Associer des sons':'';return (names[q.mode]||q.mode)+' — '+(detail||q.id)}
+function questionLabel(q){if(!q)return 'Exercice inconnu';let detail=q.w?vWord(q).word:q.blend!==undefined?blendItems[q.blend]?.[2]:q.family!==undefined?soundFamilies[q.family]?.[0]:q.cousin!==undefined?cousinWords[q.cousin]?.[0]:q.mode==='sentence'?'Phrase de compréhension':q.mode==='mirror'?'Lettres b/d/p/q':q.mode==='match'?'Associer des sons':'';return (names[q.mode]||q.mode)+' — '+(detail||q.id)}
 let parentPlanDay='next',pickerIndex=-1;
 
 const catalogInfo={
 gap:['Compléter les lettres manquantes dans un mot.','Conserver ; proposer progressivement moins d’indices.'],
-hunt:['Trouver le mot qui contient les lettres demandées.','Conserver ; utiliser des choix vraiment distincts.'],
+hunt:['Écouter un son puis trouver le mot qui le contient.','Le son recherché est uniquement entendu.'],
 oral:['Lire le mot à voix haute devant un adulte.','Conserver ; validation par le parent.'],
-syllable:['Lire les syllabes affichées et retrouver le mot.','À modifier : assembler les syllabes par toucher, plutôt que choisir le mot entier.'],
-sentence:['Lire une phrase et répondre à une question de compréhension.','Conserver ; varier les questions.'],
-mirror:['Distinguer les lettres b, d, p et q.','Conserver ; travailler la discrimination visuelle et auditive.'],
+syllable:['Lire les syllabes et choisir l’image correspondante.','Réponse uniquement en images.'],
 listenWord:['Écouter un mot et choisir son écriture.','À modifier : proposer des mots proches, sans révéler la réponse avant validation.'],
 listenPart:['Écouter un mot et retrouver le son ou groupe de lettres.','À modifier : préciser le son recherché et proposer des distracteurs pertinents.'],
 soundMatch:['Reconnaître un son commun entre plusieurs mots.','À modifier : distinguer son entendu et lettres écrites.'],
-match:['Associer des sons à des mots.','À modifier : relier plusieurs paires de façon tactile.'],
+match:['Écouter trois mots et les associer aux graphies affichées.','Les mots ne sont jamais écrits avant la réponse.'],
 order:['Remettre des syllabes dans le bon ordre.','Conserver ; mélanger réellement les syllabes.'],
-cousinFill:['Écouter un mot et compléter une lettre manquante.','À modifier : travailler aussi les sons complexes, par exemple Ch__se → ai / ou / oi / ia, sans afficher « chaise » avant la réponse.']
+cousinFill:['Écouter un mot puis compléter b/d/p/q ou un son complexe.','Les mots ne sont jamais dévoilés avant la réponse.']
 };
 function parentTab(tab){if(!parentUnlocked)return;document.querySelectorAll('.parent-panel').forEach(el=>el.classList.toggle('hidden',el.dataset.panel!==tab));document.querySelectorAll('[data-parent-tab]').forEach(el=>{let active=el.dataset.parentTab===tab;el.className=active?'primary':'secondary';el.setAttribute('aria-pressed',String(active))});if(tab==='catalog')showParentCatalog();if(tab==='tracking'||tab==='planning')showParentTracking()}
 document.querySelectorAll('[data-parent-tab]').forEach(b=>b.addEventListener('click',()=>parentTab(b.dataset.parentTab)));
 function showParentCatalog(){if(!parentUnlocked)return;const root=$('parentCatalog');root.replaceChildren();for(const [mode,name] of Object.entries(names)){const q=ALL.find(x=>x.mode===mode);if(!q)continue;const w=q.w?vWord(q):null;const info=catalogInfo[mode]||['Exercice de lecture',''];const d=document.createElement('details');d.className='catalog-item';const head=document.createElement('summary');head.textContent=name;d.append(head);const intro=document.createElement('p');intro.textContent=info[0];d.append(intro);const sample=document.createElement('div');sample.className='catalog-example';let label='',opts=[];if(mode==='gap'){label=w.mask;opts=q.options||[]}
-else if(mode==='hunt'){label='Cherche les lettres « '+w.part+' »';opts=[w.word,'lapin','maison','bateau']}
+else if(mode==='hunt'){label='🔊 Écoute le son';opts=[w.word,'lapin','maison','bateau']}
 else if(mode==='oral'){label=w.word}
-else if(mode==='syllable'){label=w.split;opts=[w.word,'bateau','lapin']}
+else if(mode==='syllable'){label=w.split;opts=[w.emoji,'🐟','🐈','🌲']}
 else if(mode==='sentence'){let t=stories[q.story];label=t[0]+' — '+t[1];opts=t.slice(2)}
 else if(mode==='mirror'){label='Quelle lettre entends-tu ?';opts=['b','d','p','q']}
 else if(mode==='listenWord'){label='🔊 Écouter le mot';opts=['bateau','chapeau','cadeau']}
-else if(mode==='listenPart'){label='🔊 Écouter le mot, puis choisir le son';opts=['ou','on','oi']}
+else if(mode==='listenPart'){label='🔊 Écouter le son';opts=['ou','on','oi']}
 else if(mode==='soundMatch'){label='Quel mot contient le même son ?';opts=['loup','poule','maison']}
-else if(mode==='match'){label='Associer les graphies aux mots';opts=['ou ↔ loup','on ↔ pont','oi ↔ poisson']}
+else if(mode==='match'){label='Associer les sons aux boutons audio';opts=['🔊 1','🔊 2','🔊 3']}
 else if(mode==='order'){label='Remettre les syllabes dans l’ordre';opts=blendItems[q.blend].slice(0,2).reverse()}
-else if(mode==='cousinFill'){label=cousinWords[q.cousin][1];opts=['b','d','p','q']}
+else if(mode==='cousinFill'){label=q.w?vWord(q).mask:cousinWords[q.cousin][1];opts=q.w?[vWord(q).part,'ou','oi','ei']:['b','d','p','q']}
 const prompt=document.createElement('strong');prompt.textContent=label;sample.append(prompt);if(opts.length){const choices=document.createElement('div');choices.className='catalog-options';opts.forEach(o=>{let c=document.createElement('span');c.textContent=o;choices.append(c)});sample.append(choices)}d.append(sample);
 const answer=document.createElement('p');answer.className='mini muted';let correct=mode==='gap'?w.part:mode==='oral'?w.word:mode==='syllable'?w.word:mode==='sentence'?stories[q.story][2]:mode==='mirror'?q.letter:mode==='listenWord'?vWord(q).word:mode==='listenPart'?soundFamilies[q.family][0]:mode==='order'?blendItems[q.blend][2]:mode==='cousinFill'?cousinWords[q.cousin][2]:'Voir le fonctionnement dans le jeu';answer.textContent='Réponse / objectif : '+correct;d.append(answer);
 const note=document.createElement('p');note.className='catalog-note mini';note.textContent=info[1];d.append(note);root.append(d)}}
