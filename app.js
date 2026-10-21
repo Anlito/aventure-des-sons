@@ -82,11 +82,11 @@ const ALL=pool();
 function makePlan(n=dayNumber()){let randomSeed=n*127+391;function rng(){randomSeed=(Math.imul(randomSeed,1664525)+1013904223)>>>0;return randomSeed/4294967296}
  let target={gap:3,oral:2,hunt:2,syllable:2,listenWord:2,listenPart:2,soundMatch:2,match:2,order:1,cousinFill:2},plan=[];
  for(let mode of Object.keys(target)){
- let cand=ALL.filter(x=>x.mode===mode).map(x=>{let mastery=state.mastery[x.id]||0,last=state.lastSeen[x.id]||0;let due=n-last>=Math.max(1,Math.min(7,mastery+1));let weight=(mastery<0?5:mastery===0?2:1)+(due?3:0)+(n-last>2?2:0)+rng()*3;return{x,weight}}).sort((a,b)=>b.weight-a.weight);
+ let cand=ALL.filter(x=>x.mode===mode).map(x=>{let mastery=state.mastery[x.id]||0,last=state.lastSeen[x.id]||0;let due=n-last>=Math.max(1,Math.min(7,mastery+1));let skipped=(state.answers||[]).some(a=>a.id===x.id&&a.skipped);let weight=(mastery<0?5:mastery===0?2:1)+(due?3:0)+(n-last>2?2:0)+(skipped?5:0)+rng()*3;return{x,weight}}).sort((a,b)=>b.weight-a.weight);
  plan.push(...cand.slice(0,target[mode]).map(y=>y.x))}
  // Shuffle with stable daily seed; plan saved so refresh never changes it.
  for(let i=plan.length-1;i>0;i--){let j=Math.floor(rng()*(i+1));[plan[i],plan[j]]=[plan[j],plan[i]]}return plan}
-function ensureDay(){if(state.date!==DAY()){archiveSession('nouveau jour');state.date=DAY();state.seconds=0;state.points=0;state.index=0;state.completed=false;state.plan=[]}if(!state.plan||state.plan.length!==20)state.plan=makePlan();else {let old=state.plan;for(let i=Math.max(0,state.index);i<old.length;i++){if(!ALL.some(q=>q.id===old[i].id)){let repl=makePlan().find(q=>!old.some(x=>x.id===q.id)&&!old.slice(0,i).some(x=>x.id===q.id));if(repl)old[i]=repl}}}if(!testMode&&state.index===0){let override=readNextOverride();if(override)state.plan=override}save()}
+function ensureDay(){if(state.date!==DAY()){archiveSession('nouveau jour');state.date=DAY();state.seconds=0;state.points=0;state.index=0;state.completed=false;state.answers=[];state.plan=[]}if(!state.plan||state.plan.length!==20)state.plan=makePlan();else {let old=state.plan;for(let i=Math.max(0,state.index);i<old.length;i++){if(!ALL.some(q=>q.id===old[i].id)){let repl=makePlan().find(q=>!old.some(x=>x.id===q.id)&&!old.slice(0,i).some(x=>x.id===q.id));if(repl)old[i]=repl}}}if(!testMode&&state.index===0){let override=readNextOverride();if(override)state.plan=override}save()}
 ensureDay();
 function qAt(){return state.plan[state.index]}
 function vWord(q){return vocab[Number(q.w.slice(1))]}
@@ -159,16 +159,16 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  redraw();$('interactive').append(display,row);
  }
  else if(q.mode==='match'){
- let f=soundFamilies[q.family];$('instruction').textContent='Relie les lettres aux mots qui les contiennent : touche une étiquette à gauche puis un mot à droite.';
- $('word').textContent='🔗';$('question').textContent='Associe les graphies à leurs mots.';
+ let f=soundFamilies[q.family];$('instruction').textContent='Écoute chaque mot et relie-le au son correspondant.';
+ $('word').textContent='🔗';$('question').textContent='Touche un bouton audio puis les lettres du son entendu.';
  $('interactive').classList.remove('hidden');
  const families=shuffle([f,...shuffle(soundFamilies.filter(x=>x!==f&&x[0]!==f[0])).slice(0,2)]);
- const leftCol=document.createElement('div'),rightCol=document.createElement('div'),board=document.createElement('div');
- board.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:14px';
+ const board=document.createElement('div'),leftCol=document.createElement('div'),rightCol=document.createElement('div');
+ board.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px';
  let selected=null,done=0,mistakes=0;
- const wordOrder=shuffle(families);
- families.forEach(fam=>{let b=document.createElement('button');b.className='secondary';b.textContent=fam[0];b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||b.disabled)return;selected=b;[...leftCol.children].forEach(x=>x.style.outline='');b.style.outline='3px solid #f2bd40';speak(fam[1])};leftCol.append(b)});
- wordOrder.forEach(fam=>{let b=document.createElement('button');b.className='secondary';b.textContent=fam[1];b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||!selected||b.disabled)return;if(selected.dataset.key===b.dataset.key){selected.disabled=true;b.disabled=true;selected.style.background='#b7edcd';b.style.background='#b7edcd';done++;if(done===3){answered=true;feedback(q,mistakes===0)}}else{mistakes++;$('feedback').textContent='Ce n’est pas la bonne association. Essaie encore.'}selected.style.outline='';selected=null};rightCol.append(b)});
+ const audioOrder=shuffle(families);
+ audioOrder.forEach((fam,i)=>{let b=document.createElement('button');b.className='secondary';b.textContent='🔊 Mot '+(i+1);b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||b.disabled)return;selected=b;[...leftCol.children].forEach(x=>x.style.outline='');b.style.outline='3px solid #f2bd40';speak(fam[1])};leftCol.append(b)});
+ shuffle(families).forEach(fam=>{let b=document.createElement('button');b.className='secondary';b.textContent=fam[0];b.dataset.key=fam[0];b.style.cssText='display:block;width:100%;margin:5px 0';b.onclick=()=>{if(answered||!selected||b.disabled)return;if(selected.dataset.key===b.dataset.key){selected.disabled=true;b.disabled=true;selected.style.background='#b7edcd';b.style.background='#b7edcd';done++;if(done===3){answered=true;feedback(q,mistakes===0)}}else{mistakes++;$('feedback').textContent='Essaie une autre association.'}selected.style.outline='';selected=null};rightCol.append(b)});
  board.append(leftCol,rightCol);$('interactive').append(board);
  }
  else if(q.mode==='cousinFill'){
@@ -207,8 +207,9 @@ $('hint').onclick=()=>{hadHint=true;let q=qAt();if(q.mode==='cousinFill'){$('pic
 $('parentCheck').onclick=()=>{if(testMode&&parentUnlocked){$('adultButtons').classList.remove('hidden');return}gateFails=0;newGate();$('gate').classList.remove('hidden')};
 function newGate(){let a=6+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*7);gateExpected=a*b;$('mathQuestion').textContent='Pour le parent : combien font '+a+' × '+b+' ?';$('mathAnswer').value='';$('gateError').textContent=''}
 $('unlock').onclick=()=>{if(Number($('mathAnswer').value)===gateExpected&&$('mathAnswer').value!==''){$('gate').classList.add('hidden');$('adultButtons').classList.remove('hidden')}else{gateFails++;$('gateError').textContent='Réponse incorrecte.';newGate();if(gateFails>=3){$('gate').classList.add('hidden');$('gateError').textContent='Demande à un parent.'}}};
+function skipOral(){if(answered||qAt()?.mode!=='oral')return;answered=true;const q=qAt();if(!parentDemo){state.answers.push({id:q.id,mode:q.mode,ok:null,skipped:true,points:0,seconds:0,at:new Date().toISOString()});state.index++;save()}$('feedback').textContent='Lecture passée : aucun point perdu, ce mot sera reproposé.';$('next').classList.remove('hidden');$('next').textContent='Question suivante →';sync()}
 function oralAnswer(ok){if(answered||left()<=0)return;answered=true;$('adultButtons').classList.add('hidden');feedback(qAt(),ok,true)}
-$('oralYes').onclick=()=>oralAnswer(true);$('oralNo').onclick=()=>oralAnswer(false);
+$('oralYes').onclick=()=>oralAnswer(true);$('skipOral').onclick=skipOral;$('oralNo').onclick=()=>oralAnswer(false);
 $('next').onclick=()=>{if(!answered)return;if(state.index>=20)finish();else render()};
 function finish(){if(!state.completed){state.completed=true;if(!testMode){let earned=Math.floor(state.points/100);state.earned=(state.earned||0)+earned;state.stars=earned}save();archiveSession('terminée')}show('end');$('endTitle').textContent=testMode?'Série test terminée':'🎉 Parcours terminé !';$('endText').textContent=testMode?'20 questions testées · '+state.points+' points fictifs. Retourne à l’accueil pour lancer une nouvelle série, sans attendre demain.':'20 questions réussies ou essayées · '+state.points+' points · '+state.stars+' étoile(s) gagnée(s). Tu peux les dépenser dans un coffre ou économiser pour demain.';renderChests()}
 function timeUp(){show('end');$('endTitle').textContent='🌙 À demain !';$('endText').textContent='Tes 10 minutes sont écoulées. Les questions et les points sont conservés, mais les étoiles sont distribuées à la fin des 20 questions. Le parcours reprend demain uniquement si tu n’as pas terminé celui d’aujourd’hui.'}
