@@ -95,7 +95,7 @@ function show(id){for(let p of ['home','play','end'])$(p).classList.toggle('hidd
 function home(){show('home');$('intro').textContent=testMode?'Mode test parent : 20 questions par série, autant de séries que souhaité. Aucun impact sur les récompenses de l’enfant.':state.completed?'Parcours terminé ! Reviens demain pour 20 nouvelles questions adaptées.':'Aujourd’hui : 20 défis avec écoute, associations de sons, mots à trous, lecture orale et compréhension. Active le son de la tablette.';$('homeProgress').style.width=(state.index/20*100)+'%';$('homeCount').textContent=state.index+' questions sur 20 terminées';$('start').textContent=testMode&&state.completed?'Nouvelle série de 20 questions':state.completed?'Parcours terminé':state.index?'Reprendre mon parcours':'Commencer mes 20 questions';$('start').disabled=!testMode&&(state.completed||left()<=0);$('worlds').replaceChildren();worlds.forEach((x,i)=>{let d=document.createElement('div'),img=document.createElement('img');img.src=worldImages[i];img.alt='';let t=document.createElement('div');t.textContent=x;d.append(img,t);$('worlds').append(d)});renderChests();$('parentStats').textContent='Banque : '+balance()+' étoiles · '+Object.keys(state.mastery).length+' exercices suivis · '+ALL.length+' exercices dans la banque.'}
 let startTime=0,answered=false,gateExpected=0,gateFails=0,hadHint=false;
 function play(){if(testMode&&state.completed){state.completed=false;state.index=0;state.points=0;state.plan=makePlan();save()}if(state.completed||left()<=0){home();return}show('play');render()}
-function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();return}let q=qAt(),w=q.w?vWord(q):null;answered=false;hadHint=false;startTime=performance.now();$('counter').textContent=(state.index+1)+'/20';$('mode').textContent=names[q.mode];$('scene').src=worldImages[(state.index+dayNumber())%6];$('gameProgress').style.width=(state.index/20*100)+'%';$('feedback').textContent='';$('next').classList.add('hidden');$('choices').replaceChildren();$('interactive').replaceChildren();$('interactive').classList.add('hidden');$('oral').classList.toggle('hidden',q.mode!=='oral');$('gate').classList.add('hidden');$('adultButtons').classList.toggle('hidden',!(testMode&&q.mode==='oral'));$('parentCheck').classList.toggle('hidden',testMode&&q.mode==='oral');$('audio').classList.add('hidden');$('hint').classList.add('hidden');$('picture').classList.add('hidden');$('question').textContent='';$('word').textContent='';$('instruction').textContent='';
+function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();return}let q=qAt(),w=q.w?vWord(q):null;answered=false;hadHint=false;startTime=performance.now();$('counter').textContent=(state.index+1)+'/20';$('mode').textContent=names[q.mode];$('scene').src=worldImages[(state.index+dayNumber())%6];$('gameProgress').style.width=(state.index/20*100)+'%';$('feedback').textContent='';$('next').classList.add('hidden');$('choices').replaceChildren();$('choices')._images=null;$('interactive').replaceChildren();$('interactive').classList.add('hidden');$('oral').classList.toggle('hidden',q.mode!=='oral');$('gate').classList.add('hidden');$('adultButtons').classList.toggle('hidden',!(testMode&&q.mode==='oral'));$('parentCheck').classList.toggle('hidden',testMode&&q.mode==='oral');$('audio').classList.add('hidden');$('hint').classList.add('hidden');$('picture').classList.add('hidden');$('question').textContent='';$('word').textContent='';$('instruction').textContent='';
  let options=[],correct='';
  if(q.mode==='gap'){
  let level=state.mastery[q.id]||0;let phase=level<=0?'image':level<2?'audio':'independent';$('instruction').textContent=phase==='image'?'Regarde l’image et complète le mot.':phase==='audio'?'Écoute le mot, puis complète-le.':'Complète le mot. Demande un indice si besoin.';$('word').textContent=w.mask;
@@ -104,22 +104,22 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  if(phase==='independent'){$('hint').classList.remove('hidden');$('question').textContent='Essaie sans aide.'}
  options=q.options;correct=w.part;
  }else if(q.mode==='oral'){$('instruction').textContent=testMode?'Mode test : lis le mot et valide directement.':'Lis ce mot à voix haute devant ton parent.';$('word').textContent=w.word;$('hint').classList.remove('hidden');$('question').textContent='Appuie sur « Voir un indice » pour le découpage.'}
- else if(q.mode==='hunt'){$('instruction').textContent='Retrouve le mot qui contient ces lettres.';$('word').textContent=w.part;$('question').textContent='Quel mot contient « '+w.part+' » ?';correct=w.word;let distract=shuffle(vocab.filter(x=>x.word!==w.word&&!x.word.includes(w.part)).map(x=>x.word));options=shuffle([correct,...new Set(distract)].slice(0,4));}
- else if(q.mode==='syllable'){$('instruction').textContent='Quel mot lis-tu ?';$('word').textContent=w.split;$('question').textContent='Assemble les syllabes.';correct=w.word;let distract=shuffle(vocab.filter(x=>x.word!==w.word).map(x=>x.word));options=shuffle([correct,...new Set(distract)].slice(0,4));}
+ else if(q.mode==='hunt'){$('instruction').textContent='Écoute le son, puis trouve un mot qui le contient.';$('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Quel mot contient le son entendu ?';correct=w.word;let distract=shuffle(vocab.filter(x=>x.word!==w.word&&!x.word.includes(w.part)).map(x=>x.word));options=shuffle([correct,...new Set(distract)].slice(0,4));}
+ else if(q.mode==='syllable'){$('instruction').textContent='Lis les syllabes et choisis la bonne image.';$('word').textContent=w.split;$('question').textContent='Quelle image correspond au mot ?';correct=w.word;let distract=shuffle(vocab.filter(x=>x.word!==w.word&&x.emoji!==w.emoji&&x.emoji!==''));let picked=[],seen=new Set([w.emoji]);for(let x of distract){if(!seen.has(x.emoji)){picked.push(x);seen.add(x.emoji)}if(picked.length===3)break}options=shuffle([w,...picked].map(x=>x.word));const images=new Map([w,...picked].map(x=>[x.word,x.emoji]));$('choices').dataset.images='1';$('choices')._images=images;}
  else if(q.mode==='sentence'){let t=stories[q.story];$('instruction').textContent='Lis la phrase puis réponds.';$('word').style.fontSize='clamp(1.5rem,5vw,2.4rem)';$('word').textContent=t[0];$('question').textContent=t[1];correct=t[2];options=shuffle(t.slice(2));}
  else if(q.mode==='listenWord'){
  $('instruction').textContent='Écoute le mot, puis retrouve son écriture. Ne te fie pas seulement à l’image.';
  $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Appuie sur Écouter. Quel mot entends-tu ?';
- correct=w.word;let other=shuffle([...new Set(vocab.filter(x=>x.word!==correct).map(x=>x.word))]).slice(0,3);options=shuffle([correct,...other]);
+ correct=w.word;let other=shuffle([...new Set(vocab.filter(x=>x.word!==correct).map(x=>x.word))]).sort((a,b)=>{const distance=x=>Math.abs(x.length-correct.length)*2+(x.slice(0,2)===correct.slice(0,2)?0:2)+(x.slice(-2)===correct.slice(-2)?0:1);return distance(a)-distance(b)}).slice(0,3);options=shuffle([correct,...other]);
  }
  else if(q.mode==='listenPart'){
  let f=soundFamilies[q.family];$('instruction').textContent='Écoute le mot-repère, puis retrouve les lettres du son à apprendre.';
- $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Dans « '+f[1]+' », quelles lettres forment le son étudié ?';
- correct=f[0];options=shuffle([correct,...shuffle(choices.filter(x=>x!==correct)).slice(0,3)]);
+ $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Quelles lettres correspondent au son entendu ?';
+ correct=f[0];options=shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x!==f[0])).slice(0,3)]);
  }
  else if(q.mode==='soundMatch'){
- let f=soundFamilies[q.family];$('instruction').textContent='Écoute le mot-repère. Quel autre mot contient les mêmes lettres ?';
- $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Cherche les mêmes lettres que dans « '+f[1]+' ».';
+ let f=soundFamilies[q.family];$('instruction').textContent='Écoute le mot. Quel autre mot contient le même son ?';
+ $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Écoute puis trouve un mot qui contient le même son.';
  correct=f[2];let other=shuffle([...new Set(vocab.filter(x=>!x.word.includes(f[0])&&x.word!==correct).map(x=>x.word))]).slice(0,3);options=shuffle([correct,...other]);
  }
  else if(q.mode==='blend'){
@@ -172,12 +172,11 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  board.append(leftCol,rightCol);$('interactive').append(board);
  }
  else if(q.mode==='cousinFill'){
- let cw=cousinWords[q.cousin];
- $('instruction').textContent='Écoute le mot, puis choisis la lettre manquante. Compare bien b, d, p et q.';
- $('word').textContent=cw[1];$('question').textContent='Quelle lettre manque dans le mot entendu ?';
+ let cw=q.w?null:cousinWords[q.cousin],target=q.w?vWord(q):null;
+ $('instruction').textContent='Écoute le mot et complète les lettres manquantes.';
+ $('word').textContent=target?target.mask:cw[1];$('question').textContent='Quelles lettres manquent dans le mot entendu ?';
  $('audio').classList.remove('hidden');$('hint').classList.remove('hidden');
- // No visible target word: listening is necessary. Replay is free; hint removes speed bonus.
- options=shuffle(['b','d','p','q']);correct=cw[2];
+ correct=target?target.part:cw[2];options=target?shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x.length>=2)).slice(0,3)]):shuffle(['b','d','p','q']);
  }
  else if(q.mode==='mirror'){
  $('instruction').textContent='Écoute le nom de la lettre, puis retrouve la bonne lettre parmi les quatre propositions.';
@@ -188,15 +187,16 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  if(q.mode==='cousinFill')setTimeout(()=>{if(qAt()===q && !answered)try{speak(q.w?vWord(q).word:cousinWords[q.cousin][0])}catch(e){}},250);
  if(q.mode==='mirror')setTimeout(()=>{if(qAt()===q && !answered)try{speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter])}catch(e){}},350);
  if(q.mode!=='sentence')$('word').style.fontSize='';
- if(!['oral','type','order','match'].includes(q.mode))options.forEach(opt=>{let b=document.createElement('button');b.textContent=opt;b.onclick=()=>answer(opt,correct,b);$('choices').append(b)})
+ if(!['oral','type','order','match'].includes(q.mode))options.forEach(opt=>{let b=document.createElement('button');b.textContent=q.mode==='syllable'?( $('choices')._images?.get(opt)||'❔'):opt;b.setAttribute('aria-label',q.mode==='syllable'?'Choisir cette image':opt);b.dataset.answer=opt;b.onclick=()=>answer(opt,correct,b);$('choices').append(b)})
 }
 function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?(q.w?vWord(q).part:cousinWords[q.cousin][2]):q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
-function answer(opt,correct,btn){if(answered||left()<=0)return;answered=true;let q=qAt(),ok=opt===correct;for(let b of $('choices').children){b.disabled=true;if(b.textContent===correct)b.classList.add('correct');else if(b===btn)b.classList.add('wrong')}feedback(q,ok)}
+function answer(opt,correct,btn){if(answered||left()<=0)return;answered=true;let q=qAt(),ok=opt===correct;for(let b of $('choices').children){b.disabled=true;if((q.mode==='syllable'?b.dataset.answer:b.textContent)===correct)b.classList.add('correct');else if(b===btn)b.classList.add('wrong')}feedback(q,ok)}
 function speak(text,rate=.78){if(!('speechSynthesis'in window)){alert('La lecture audio n’est pas disponible sur cet appareil.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';u.rate=rate;let v=speechSynthesis.getVoices().find(x=>x.lang?.toLowerCase().startsWith('fr'));if(v)u.voice=v;speechSynthesis.speak(u)}
 $('readInstruction').onclick=()=>{const consigne=$('instruction').textContent.trim();if(consigne)speak(consigne)};
 $('audio').onclick=()=>{let q=qAt();if(q.mode==='gap')hadHint=true;
  if(q.mode==='listenPart'||q.mode==='soundMatch')speak(soundFamilies[q.family][1]);
  else if(q.mode==='cousinFill')speak(q.w?vWord(q).word:cousinWords[q.cousin][0]);
+ else if(q.mode==='hunt')speak(vWord(q).part);
  else if(q.mode==='mirror')speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter]);
  else if(q.mode==='order'){let f=blendItems[q.blend];speak(f[2])}
  else if(q.mode==='match'){speak(soundFamilies[q.family][1])}
