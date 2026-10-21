@@ -129,8 +129,8 @@ function render(){$('answerOverlay').classList.add('hidden');if(state.index>=20)
  correct=f[0];options=shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x!==f[0])).slice(0,3)]);
  }
  else if(q.mode==='soundMatch'){
- let f=soundFamilies[q.family];$('instruction').textContent='Écoute le mot. Quel autre mot contient le même son ?';
- $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Écoute puis trouve un mot qui contient le même son.';
+ let f=soundFamilies[q.family];$('instruction').textContent='Écoute le son, puis trouve un mot qui le contient.';
+ $('word').textContent='🎧';$('audio').classList.remove('hidden');$('question').textContent='Quel mot contient le son entendu ?';
  correct=f[2];let other=shuffle([...new Set(vocab.filter(x=>!x.word.includes(f[0])&&x.word!==correct).map(x=>x.word))]).slice(0,3);options=shuffle([correct,...other]);
  }
  else if(q.mode==='blend'){
