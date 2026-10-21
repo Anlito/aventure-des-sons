@@ -217,3 +217,13 @@ body>.answer-overlay #next.hidden{display:none!important}
 #soundRecorderStatus{font-size:.9rem;color:#35557c}
 #soundDownloadAll{width:100%;margin:8px 0 15px}
 @media(max-width:420px){.sound-record-row{grid-template-columns:48px minmax(0,1fr) auto}.sound-record-row button{font-size:.77rem;padding:7px 5px}}
+
+/* Pavé numérique intégré de l'espace parents */
+#parentLoginForm{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:330px;margin:0 auto}
+#parentPin{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.parent-pin-dots{font-size:2.1rem;letter-spacing:.25em;color:#28548b;font-weight:900;min-height:46px}
+.parent-keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+.parent-keypad button{min-height:66px;border-radius:16px;background:#fff5d9;color:#553716;border:2px solid #d7ad64;box-shadow:0 4px 0 #b88c46;font-size:1.65rem;font-weight:900;touch-action:manipulation}
+.parent-keypad button:active{transform:translateY(3px);box-shadow:0 1px 0 #b88c46}
+#parentUnlockButton{width:100%;min-height:52px}
+#parentUnlockButton:disabled{opacity:.5}
