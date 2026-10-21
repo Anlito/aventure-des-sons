@@ -402,10 +402,25 @@ document.querySelectorAll('[data-pin-key]').forEach(button=>button.addEventListe
 $('resetGame').onclick=()=>{if(!parentUnlocked)return;$('resetGameConfirm').classList.remove('hidden')};
 $('resetGameCancel').onclick=()=>{$('resetGameConfirm').classList.add('hidden')};
 $('resetGameApply').onclick=()=>{if(!parentUnlocked)return;
- const rewards=Array.isArray(state.rewards)?state.rewards:blank().rewards;
+ const rewards=Array.isArray(state.rewards)?state.rewards.slice():blank().rewards;
  const clean=blank();clean.rewards=rewards;
- try{localStorage.setItem('sons_v8_20_daily',JSON.stringify(clean));localStorage.removeItem('sons_parent_test_data');localStorage.removeItem('sons_parent_next_plan_v1');localStorage.removeItem('sons_bonus_daily_v1');localStorage.setItem(TEST_FLAG,'0')}catch(e){alert('Réinitialisation impossible : '+e.message);return}
- location.reload();
+ try{
+  localStorage.removeItem('sons_v8_20_daily');
+  localStorage.removeItem('sons_parent_test_data');
+  localStorage.removeItem('sons_parent_next_plan_v1');
+  localStorage.removeItem('sons_bonus_daily_v1');
+  localStorage.setItem(TEST_FLAG,'0');
+  state=clean;ensureDay();save();
+  const check=JSON.parse(localStorage.getItem('sons_v8_20_daily')||'null');
+  if(!check||check.index!==0||check.points!==0||check.earned!==0)throw Error('La sauvegarde n’a pas été remise à zéro.');
+ }catch(e){alert('Réinitialisation impossible : '+e.message);return}
+ $('resetGameConfirm').classList.add('hidden');
+ $('parentPage').classList.add('hidden');
+ document.querySelector('main').classList.remove('hidden');
+ parentUnlocked=false;
+ home();
+ alert('Jeu réinitialisé : 0/20, 0 point, 0 étoile. Les cadeaux sont conservés.');
+ if(testMode)location.reload();
 };
 let parentUnlocked=false;
 $('openParent').onclick=()=>{parentUnlocked=false;$('parentPin').value='';updateParentPinDisplay();$('parentPinError').textContent='';$('parentLogin').classList.remove('hidden');$('parentDashboard').classList.add('hidden');$('parentPage').classList.remove('hidden');document.querySelector('main').classList.add('hidden');window.scrollTo(0,0)};
