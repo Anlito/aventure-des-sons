@@ -102,3 +102,30 @@ main{max-width:760px;padding:12px 12px 30px}
 #home .journey-map .map-landscape .journey-steps .map-step{position:absolute!important;display:flex!important;flex:0 0 36px!important;width:36px!important;height:36px!important;min-width:36px!important;max-width:36px!important;min-height:36px!important;max-height:36px!important;aspect-ratio:auto!important;padding:0!important;line-height:1!important;transform:translate(-50%,-50%)!important;box-sizing:border-box!important;animation:none!important}
 #home .journey-map .map-landscape .journey-steps{display:block!important;position:absolute!important;inset:0!important}
 @media(max-width:430px){#home .journey-map .map-landscape .journey-steps .map-step{width:30px!important;height:30px!important;min-width:30px!important;max-width:30px!important;min-height:30px!important;max-height:30px!important}}
+
+/* Accueil mobile : une carte plein écran, trois actions, presque aucun texte */
+body:has(#home:not(.hidden)) main{max-width:650px;padding:0 10px 12px}
+#home.game-home{display:block;position:relative;min-height:min(740px,calc(100svh - 145px));padding:0!important;margin:10px 0 8px;border:4px solid #fff2bc;border-radius:30px;background:#76bd7b;overflow:hidden;box-shadow:0 7px 0 #6e9a4b,0 15px 30px #285e5a66}
+#home.game-home.hidden{display:none!important}
+.home-map{position:absolute;inset:0;cursor:pointer;background:linear-gradient(180deg,#89d6ff33,#45a87a20),url('assets/illustration-11.jpg') center/cover}
+.home-map-shade{position:absolute;inset:0;background:linear-gradient(180deg,#061e3d0a 0%,#14355a00 38%,#142c49a6 83%,#12284be3 100%)}
+.home-map-castle{position:absolute;top:7%;right:10%;font-size:clamp(3.5rem,13vw,6rem);filter:drop-shadow(0 6px 5px #162d3b80)}
+.home-map-dragon{position:absolute;top:25%;left:22%;font-size:clamp(3rem,12vw,5rem);filter:drop-shadow(0 6px 5px #162d3b80);animation:dragonBounce 2.4s ease-in-out infinite}
+.home-map-progress{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;gap:10px;background:#193c6acb;border:2px solid #b8ecff;border-radius:99px;padding:7px 12px;color:white;font-family:'Baloo 2',system-ui,sans-serif;font-weight:800}
+.home-map-progress .bar{flex:1;margin:0!important;height:13px!important;border:2px solid #fff3bc!important}
+.home-actions{position:absolute;bottom:16px;left:15px;right:15px;display:flex;flex-direction:column;gap:11px}
+.game-action{display:flex;align-items:center;gap:13px;justify-content:flex-start;width:100%;min-height:76px;border-radius:22px!important;padding:8px 15px!important;font-family:'Baloo 2',system-ui,sans-serif!important;font-size:clamp(1.25rem,5vw,1.7rem)!important;font-weight:800!important;line-height:1.05;color:white!important;text-shadow:0 2px 2px #0005;border:3px solid #ffffffa8!important;box-shadow:0 5px 0 #2b3d40,0 8px 12px #0004!important;transition:transform .12s}
+.game-action:active{transform:translateY(4px);box-shadow:0 1px 0 #2b3d40!important}
+.game-action-icon{font-size:2.15rem;line-height:1;display:grid;place-items:center;width:49px;height:49px;background:#ffffff30;border-radius:16px;flex:none}
+.game-action small{font-size:.85em;color:#fff7b8}
+.game-action-arrow{margin-left:auto;font-size:1.1rem}
+.game-action-play{background:linear-gradient(#9ae943,#41b92d)!important;border-color:#d4ffa2!important}
+.game-action-bonus{background:linear-gradient(#ffc95b,#ed8d1c)!important;border-color:#ffe4a2!important}
+.game-action-treasure{background:linear-gradient(#9e75ef,#6245ba)!important;border-color:#d6c0ff!important}
+.game-action:disabled{opacity:.6;filter:grayscale(.45)}
+.parent-access{background:transparent;border:0;box-shadow:none;padding:0 8px;margin:9px 0;text-align:center}
+.parent-access #openParent{width:auto!important;font-size:.8rem!important;padding:7px 12px;min-height:30px;border-radius:99px;opacity:.85;background:#ffffffb8}
+#chests.treasure-shop.hidden{display:none!important}
+#chests.treasure-shop{margin:12px 0;min-height:70svh}
+.treasure-back{display:inline-flex;align-items:center;justify-content:center;background:#fff2d0;color:#754119;border:2px solid #dfad5d;border-radius:99px;padding:8px 16px;font-weight:800;margin:0 0 16px}
+@media(max-width:420px){#home.game-home{min-height:calc(100svh - 165px)}.home-actions{left:10px;right:10px;bottom:10px;gap:9px}.game-action{min-height:68px;padding:7px 10px!important}.game-action-icon{width:43px;height:43px;font-size:1.9rem}}
