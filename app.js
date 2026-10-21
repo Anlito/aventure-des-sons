@@ -45,6 +45,7 @@ const cousinWords=[
  ['quatre','_uatre','q','4️⃣'],['quille','_uille','q','🎳'],['question','_uestion','q','❓'],['quinze','_uinze','q','1️⃣5️⃣'],['queue','_ueue','q','🐈'],['quand','_uand','q','🕒'],
  ['robe','ro_e','b','👗'],['arbre','ar_re','b','🌳'],['table','ta_le','b','🪑'],['corde','cor_e','d','🪢'],['radis','ra_is','d','🥬'],['rapide','ra_ide','p','🏃']
 ];
+const ruleWords=[['citron','_itron','c',['c','s','ç','k']],['cadeau','_adeau','c',['c','s','ç','k']],['garçon','gar_on','ç',['c','ç','s','ss']],['reçu','re_u','ç',['c','ç','s','ss']],['poisson','poi__on','ss',['s','ss','c','ç']],['coussin','cou__in','ss',['s','ss','c','ç']],['maison','mai_on','s',['s','ss','z','c']],['rose','ro_e','s',['s','ss','z','c']]];
 const blendItems=[['cha','peau','chapeau'],['ba','teau','bateau'],['la','pin','lapin'],['mou','lin','moulin'],['poi','sson','poisson'],['mai','son','maison'],['jar','din','jardin'],['che','min','chemin'],['chan','son','chanson'],['bou','gie','bougie'],['co','chon','cochon'],['ma','man','maman']];
 const choices=['ou','on','an','en','in','un','ai','ei','oi','oin','ouin','oui','eau','au','ch','gn','é','è','am','em','um'];
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -69,6 +70,7 @@ function pool(){let all=[];
  }
  for(let i=0;i<cousinWords.length;i++)all.push({id:'cf'+i,mode:'cousinFill',cousin:i});
  for(let w of vocab.filter(x=>x.mask.includes('__')&&x.part.length>1))all.push({id:'cfv'+w.id,mode:'cousinFill',w:w.id});
+ for(let i=0;i<ruleWords.length;i++)all.push({id:'cfr'+i,mode:'cousinFill',rule:i});
  for(let i=0;i<soundFamilies.length;i++){
  all.push({id:'lp'+i,mode:'listenPart',family:i});
  all.push({id:'sm'+i,mode:'soundMatch',family:i});
@@ -172,11 +174,11 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  board.append(leftCol,rightCol);$('interactive').append(board);
  }
  else if(q.mode==='cousinFill'){
- let cw=q.w?null:cousinWords[q.cousin],target=q.w?vWord(q):null;
+ let cw=q.w||q.rule!==undefined?null:cousinWords[q.cousin],target=q.w?vWord(q):null,rule=q.rule!==undefined?ruleWords[q.rule]:null;
  $('instruction').textContent='Écoute le mot et complète les lettres manquantes.';
- $('word').textContent=target?target.mask:cw[1];$('question').textContent='Quelles lettres manquent dans le mot entendu ?';
+ $('word').textContent=target?target.mask:rule?rule[1]:cw[1];$('question').textContent='Quelles lettres manquent dans le mot entendu ?';
  $('audio').classList.remove('hidden');$('hint').classList.remove('hidden');
- correct=target?target.part:cw[2];options=target?shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x.length>=2)).slice(0,3)]):shuffle(['b','d','p','q']);
+ correct=target?target.part:rule?rule[2]:cw[2];options=target?shuffle([correct,...shuffle(choices.filter(x=>x!==correct&&x.length>=2)).slice(0,3)]):rule?shuffle(rule[3]):shuffle(['b','d','p','q']);
  }
  else if(q.mode==='mirror'){
  $('instruction').textContent='Écoute le nom de la lettre, puis retrouve la bonne lettre parmi les quatre propositions.';
@@ -184,12 +186,12 @@ function render(){if(state.index>=20){finish();return}if(left()<=0){timeUp();ret
  $('audio').classList.remove('hidden');correct=q.letter;options=shuffle(['b','d','p','q']);
  }
  else if(q.mode==='grapheme'){$('instruction').textContent='Repère les lettres qui forment ce son.';$('word').textContent=q.part;correct=q.part;options=shuffle([q.part,...shuffle(choices.filter(x=>x!==q.part)).slice(0,3)])}
- if(q.mode==='cousinFill')setTimeout(()=>{if(qAt()===q && !answered)try{speak(q.w?vWord(q).word:cousinWords[q.cousin][0])}catch(e){}},250);
+ if(q.mode==='cousinFill')setTimeout(()=>{if(qAt()===q && !answered)try{speak(q.w?vWord(q).word:q.rule!==undefined?ruleWords[q.rule][0]:cousinWords[q.cousin][0])}catch(e){}},250);
  if(q.mode==='mirror')setTimeout(()=>{if(qAt()===q && !answered)try{speak(({b:'bé',d:'dé',p:'pé',q:'ku'})[q.letter])}catch(e){}},350);
  if(q.mode!=='sentence')$('word').style.fontSize='';
  if(!['oral','type','order','match'].includes(q.mode))options.forEach(opt=>{let b=document.createElement('button');b.textContent=q.mode==='syllable'?( $('choices')._images?.get(opt)||'❔'):opt;b.setAttribute('aria-label',q.mode==='syllable'?'Choisir cette image':opt);b.dataset.answer=opt;b.onclick=()=>answer(opt,correct,b);$('choices').append(b)})
 }
-function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?(q.w?vWord(q).part:cousinWords[q.cousin][2]):q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
+function feedback(q,ok,oral=false){let seconds=(performance.now()-startTime)/1000;let base=ok?10:0;let bonus=ok&&!oral&&!hadHint?Math.max(0,Math.min(5,Math.floor((16-seconds)/3))):0;let pts=base+bonus;state.points+=pts;let old=state.mastery[q.id]||0;state.mastery[q.id]=Math.max(-3,Math.min(5,old+(ok?1:-1)));state.lastSeen[q.id]=dayNumber();state.answers.push({id:q.id,mode:q.mode,ok,points:pts,seconds:Math.round(seconds),at:new Date().toISOString()});state.index++;save();$('feedback').textContent=ok?'Bonne réponse ! +'+pts+' points'+(bonus?' (dont '+bonus+' bonus de rapidité)':''):'La réponse attendue était : '+(q.mode==='listenWord'?vWord(q).word:q.mode==='listenPart'?soundFamilies[q.family][0]:q.mode==='soundMatch'?soundFamilies[q.family][2]:q.mode==='blend'||q.mode==='order'?blendItems[q.blend][2]:q.mode==='type'?vWord(q).word:q.mode==='match'?'les bonnes associations':q.mode==='cousinFill'?(q.w?vWord(q).part:q.rule!==undefined?ruleWords[q.rule][2]:cousinWords[q.cousin][2]):q.mode==='gap'?vWord(q).part:'À revoir')+'. Nous la reverrons.';$('next').classList.remove('hidden');$('next').textContent=state.index===20?'Voir mes étoiles ⭐':'Question suivante →';sync()}
 function answer(opt,correct,btn){if(answered||left()<=0)return;answered=true;let q=qAt(),ok=opt===correct;for(let b of $('choices').children){b.disabled=true;if((q.mode==='syllable'?b.dataset.answer:b.textContent)===correct)b.classList.add('correct');else if(b===btn)b.classList.add('wrong')}feedback(q,ok)}
 function speak(text,rate=.78){if(!('speechSynthesis'in window)){alert('La lecture audio n’est pas disponible sur cet appareil.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';u.rate=rate;let v=speechSynthesis.getVoices().find(x=>x.lang?.toLowerCase().startsWith('fr'));if(v)u.voice=v;speechSynthesis.speak(u)}
 $('readInstruction').onclick=()=>{const consigne=$('instruction').textContent.trim();if(consigne)speak(consigne)};
@@ -203,7 +205,7 @@ $('audio').onclick=()=>{let q=qAt();if(q.mode==='gap')hadHint=true;
  else if(q.mode==='blend'){let f=blendItems[q.blend];speak(f[2],.62)}
  else speak(vWord(q).word);
 };
-$('hint').onclick=()=>{hadHint=true;let q=qAt();if(q.mode==='cousinFill'){$('picture').textContent=q.w?vWord(q).emoji:cousinWords[q.cousin][3];$('picture').classList.remove('hidden');return}let w=vWord(q);if(q.mode==='oral')$('question').textContent=w.split;else{$('picture').textContent=w.emoji;$('picture').classList.remove('hidden');$('audio').classList.remove('hidden')}};
+$('hint').onclick=()=>{hadHint=true;let q=qAt();if(q.mode==='cousinFill'){$('picture').textContent=q.w?vWord(q).emoji:q.rule!==undefined?'🔤':cousinWords[q.cousin][3];$('picture').classList.remove('hidden');return}let w=vWord(q);if(q.mode==='oral')$('question').textContent=w.split;else{$('picture').textContent=w.emoji;$('picture').classList.remove('hidden');$('audio').classList.remove('hidden')}};
 $('parentCheck').onclick=()=>{if(testMode&&parentUnlocked){$('adultButtons').classList.remove('hidden');return}gateFails=0;newGate();$('gate').classList.remove('hidden')};
 function newGate(){let a=6+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*7);gateExpected=a*b;$('mathQuestion').textContent='Pour le parent : combien font '+a+' × '+b+' ?';$('mathAnswer').value='';$('gateError').textContent=''}
 $('unlock').onclick=()=>{if(Number($('mathAnswer').value)===gateExpected&&$('mathAnswer').value!==''){$('gate').classList.add('hidden');$('adultButtons').classList.remove('hidden')}else{gateFails++;$('gateError').textContent='Réponse incorrecte.';newGate();if(gateFails>=3){$('gate').classList.add('hidden');$('gateError').textContent='Demande à un parent.'}}};
@@ -228,7 +230,7 @@ const NEXT_PLAN_KEY='sons_parent_next_plan_v1';
 function readNextOverride(){try{let x=JSON.parse(localStorage.getItem(NEXT_PLAN_KEY)||'null');return x&&x.date===nextDayString()&&Array.isArray(x.ids)&&x.ids.length===20&&x.ids.every(id=>ALL.some(q=>q.id===id))?x.ids.map(id=>ALL.find(q=>q.id===id)):null}catch{return null}}
 function nextDayString(){let d=new Date();d.setDate(d.getDate()+1);return d.toLocaleDateString('en-CA')}
 function archiveSession(status){if(testMode||!state.index)return;let entry={date:state.date,status,answered:state.index,points:state.points,stars:state.stars||0,answers:state.answers.slice()};let pos=state.history.findIndex(x=>x.date===entry.date);if(pos>=0)state.history[pos]=entry;else state.history.unshift(entry);state.history=state.history.slice(0,60);save()}
-function questionLabel(q){if(!q)return 'Exercice inconnu';let detail=q.w?vWord(q).word:q.blend!==undefined?blendItems[q.blend]?.[2]:q.family!==undefined?soundFamilies[q.family]?.[0]:q.cousin!==undefined?cousinWords[q.cousin]?.[0]:q.mode==='sentence'?'Phrase de compréhension':q.mode==='mirror'?'Lettres b/d/p/q':q.mode==='match'?'Associer des sons':'';return (names[q.mode]||q.mode)+' — '+(detail||q.id)}
+function questionLabel(q){if(!q)return 'Exercice inconnu';let detail=q.w?vWord(q).word:q.blend!==undefined?blendItems[q.blend]?.[2]:q.family!==undefined?soundFamilies[q.family]?.[0]:q.cousin!==undefined?cousinWords[q.cousin]?.[0]:q.rule!==undefined?ruleWords[q.rule]?.[0]:q.mode==='sentence'?'Phrase de compréhension':q.mode==='mirror'?'Lettres b/d/p/q':q.mode==='match'?'Associer des sons':'';return (names[q.mode]||q.mode)+' — '+(detail||q.id)}
 let parentPlanDay='next',pickerIndex=-1;
 
 const catalogInfo={
@@ -256,9 +258,9 @@ else if(mode==='listenPart'){label='🔊 Écouter le son';opts=['ou','on','oi']}
 else if(mode==='soundMatch'){label='Quel mot contient le même son ?';opts=['loup','poule','maison']}
 else if(mode==='match'){label='Associer les sons aux boutons audio';opts=['🔊 1','🔊 2','🔊 3']}
 else if(mode==='order'){label='Remettre les syllabes dans l’ordre';opts=blendItems[q.blend].slice(0,2).reverse()}
-else if(mode==='cousinFill'){label=q.w?vWord(q).mask:cousinWords[q.cousin][1];opts=q.w?[vWord(q).part,'ou','oi','ei']:['b','d','p','q']}
+else if(mode==='cousinFill'){label=q.w?vWord(q).mask:q.rule!==undefined?ruleWords[q.rule][1]:cousinWords[q.cousin][1];opts=q.w?[vWord(q).part,'ou','oi','ei']:q.rule!==undefined?ruleWords[q.rule][3]:['b','d','p','q']}
 const prompt=document.createElement('strong');prompt.textContent=label;sample.append(prompt);if(opts.length){const choices=document.createElement('div');choices.className='catalog-options';opts.forEach(o=>{let c=document.createElement('span');c.textContent=o;choices.append(c)});sample.append(choices)}d.append(sample);
-const answer=document.createElement('p');answer.className='mini muted';let correct=mode==='gap'?w.part:mode==='oral'?w.word:mode==='syllable'?w.word:mode==='sentence'?stories[q.story][2]:mode==='mirror'?q.letter:mode==='listenWord'?vWord(q).word:mode==='listenPart'?soundFamilies[q.family][0]:mode==='order'?blendItems[q.blend][2]:mode==='cousinFill'?cousinWords[q.cousin][2]:'Voir le fonctionnement dans le jeu';answer.textContent='Réponse / objectif : '+correct;d.append(answer);
+const answer=document.createElement('p');answer.className='mini muted';let correct=mode==='gap'?w.part:mode==='oral'?w.word:mode==='syllable'?w.word:mode==='sentence'?stories[q.story][2]:mode==='mirror'?q.letter:mode==='listenWord'?vWord(q).word:mode==='listenPart'?soundFamilies[q.family][0]:mode==='order'?blendItems[q.blend][2]:mode==='cousinFill'?(q.w?vWord(q).part:q.rule!==undefined?ruleWords[q.rule][2]:cousinWords[q.cousin][2]):'Voir le fonctionnement dans le jeu';answer.textContent='Réponse / objectif : '+correct;d.append(answer);
 const note=document.createElement('p');note.className='catalog-note mini';note.textContent=info[1];d.append(note);root.append(d)}}
 
 function chosenPlan(){if(parentPlanDay==='today')return state.plan;return readNextOverride()||makePlan(dayNumber()+1)}
