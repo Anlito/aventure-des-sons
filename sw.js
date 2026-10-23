@@ -1,5 +1,5 @@
 // Change VERSION when publishing any app asset. Updates activate on request.
-const VERSION = '20261023-pwa1';
+const VERSION = '20261023-pwa2';
 const PREFIX = 'aventure-des-sons-';
 const CACHE = PREFIX + VERSION;
 const ASSETS = [
@@ -13,7 +13,6 @@ const ASSETS = [
   "sound-recorder.js?v=1",
   "pwa.js",
   "manifest.webmanifest",
-  "assets/audio/.gitkeep",
   "assets/audio/ai.wav",
   "assets/audio/an.wav",
   "assets/audio/ch.wav",
@@ -75,3 +74,4 @@ self.addEventListener('fetch', event => {
     return cached || fetch(request);
   })());
 });
+
